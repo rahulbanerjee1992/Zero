@@ -6,7 +6,7 @@ A professional career assessment web application built with Next.js and React.
 
 PathFinder helps users choose ONE long-term career focus before starting training. This is a functional prototype demonstrating product thinking with a calm, serious, and trustworthy design.
 
-## Features
+## Feature
 
 ### Pages
 1. **Homepage (/)** - Animated carousel with 3 placards and video teaser
