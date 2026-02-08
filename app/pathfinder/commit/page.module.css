@@ -1,0 +1,207 @@
+.main {
+    min-height: 100vh;
+    padding: var(--spacing-2xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.container {
+    max-width: 1100px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: var(--spacing-3xl);
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+}
+
+.container.animated {
+    opacity: 1;
+}
+
+.avatarSection {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.largeAvatar {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-lg);
+    animation: scaleIn 0.6s ease;
+}
+
+.initials {
+    font-size: 4rem;
+    font-weight: 700;
+    color: white;
+    user-select: none;
+}
+
+.contentSection {
+    animation: slideInRight 0.6s ease;
+}
+
+.careerName {
+    font-size: 3rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-md);
+    line-height: 1.2;
+}
+
+.quote {
+    font-size: 1.5rem;
+    color: var(--color-text-secondary);
+    font-style: italic;
+    margin-bottom: var(--spacing-2xl);
+}
+
+.body {
+    margin-bottom: var(--spacing-2xl);
+}
+
+.body p {
+    font-size: 1.125rem;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+}
+
+.videoSection {
+    margin-bottom: var(--spacing-3xl);
+}
+
+.videoPlaceholder {
+    width: 100%;
+    max-width: 500px;
+    aspect-ratio: 16 / 9;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    border-radius: var(--radius-lg);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-md);
+    transition: all var(--transition-normal);
+}
+
+.videoPlaceholder:hover {
+    transform: scale(1.02);
+    box-shadow: var(--shadow-lg);
+}
+
+.playButton {
+    width: 60px;
+    height: 60px;
+    background-color: var(--color-accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+}
+
+.videoLabel {
+    font-size: 1rem;
+    color: white;
+    font-weight: 500;
+}
+
+.videoNote {
+    margin-top: var(--spacing-md);
+    font-size: 0.875rem;
+    color: var(--color-text-tertiary);
+    font-style: italic;
+}
+
+.commitSection {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+}
+
+.commitNote {
+    font-size: 0.875rem;
+    color: var(--color-text-tertiary);
+    font-style: italic;
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@media (max-width: 968px) {
+    .container {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-2xl);
+        text-align: center;
+    }
+
+    .contentSection {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .careerName {
+        font-size: 2.5rem;
+    }
+
+    .quote {
+        font-size: 1.25rem;
+    }
+
+    .commitSection {
+        align-items: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .largeAvatar {
+        width: 150px;
+        height: 150px;
+    }
+
+    .initials {
+        font-size: 3rem;
+    }
+
+    .careerName {
+        font-size: 2rem;
+    }
+
+    .quote {
+        font-size: 1.125rem;
+    }
+}

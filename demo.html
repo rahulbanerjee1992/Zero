@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zero - PathFinder Demo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --color-bg: #fafafa;
+            --color-surface: #ffffff;
+            --color-text-primary: #1a1a1a;
+            --color-text-secondary: #666666;
+            --color-text-tertiary: #999999;
+            --color-border: #e5e5e5;
+            --color-border-hover: #cccccc;
+            --color-accent: #2563eb;
+            --color-accent-hover: #1d4ed8;
+            --color-accent-light: #dbeafe;
+            --color-warning: #f59e0b;
+            --color-warning-light: #fef3c7;
+            --spacing-xs: 0.5rem;
+            --spacing-sm: 0.75rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            --spacing-2xl: 3rem;
+            --spacing-3xl: 4rem;
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --transition-fast: 150ms ease;
+            --transition-normal: 250ms ease;
+            --transition-slow: 350ms ease;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text-primary);
+            line-height: 1.6;
+        }
+
+        .page {
+            display: none;
+            min-height: 100vh;
+            padding: var(--spacing-2xl);
+        }
+
+        .page.active {
+            display: flex;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+        }
+
+        h2 {
+            font-size: 2rem;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        p {
+            font-size: 1rem;
+            color: var(--color-text-secondary);
+        }
+
+        .btn-primary {
+            padding: 1rem 2rem;
+            background-color: var(--color-accent);
+            color: white;
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all var(--transition-normal);
+            box-shadow: var(--shadow-sm);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--color-accent-hover);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            padding: 0.75rem 1.5rem;
+            background-color: transparent;
+            color: var(--color-text-primary);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all var(--transition-normal);
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--color-border-hover);
+            background-color: var(--color-surface);
+        }
+
+        .input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all var(--transition-fast);
+            background-color: var(--color-surface);
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 3px var(--color-accent-light);
+        }
+
+        /* Homepage */
+        #home {
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: var(--spacing-3xl);
+        }
+
+        .logo {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--color-text-primary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .tagline {
+            font-size: 1.125rem;
+            color: var(--color-text-secondary);
+        }
+
+        .carousel {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: var(--radius-lg);
+            margin: var(--spacing-2xl) 0;
+            overflow: hidden;
+        }
+
+        .placard {
+            position: absolute;
+            width: 80%;
+            text-align: center;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: all 0.5s ease;
+        }
+
+        .placard.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .placard h2 {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .placard p {
+            font-size: 1.25rem;
+            line-height: 1.6;
+        }
+
+        .carousel-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: var(--color-surface);
+            border: 1px solid var(--color-border);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            z-index: 10;
+        }
+
+        .carousel-arrow:hover {
+            background-color: var(--color-accent);
+            color: white;
+            border-color: var(--color-accent);
+        }
+
+        .carousel-arrow.left {
+            left: var(--spacing-xl);
+        }
+
+        .carousel-arrow.right {
+            right: var(--spacing-xl);
+        }
+
+        .carousel-indicators {
+            position: absolute;
+            bottom: var(--spacing-xl);
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--color-border);
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .indicator.active {
+            background-color: var(--color-accent);
+            width: 28px;
+            border-radius: 5px;
+        }
+
+        .cta-section {
+            text-align: center;
+            margin-top: var(--spacing-3xl);
+        }
+
+        .video-teaser {
+            text-align: center;
+            margin-top: var(--spacing-2xl);
+        }
+
+        .video-button {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-md) var(--spacing-lg);
+            background-color: transparent;
+            color: var(--color-text-secondary);
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            border-radius: var(--radius-md);
+        }
+
+        .video-button:hover {
+            color: var(--color-accent);
+            background-color: var(--color-accent-light);
+        }
+
+        .play-icon {
+            width: 32px;
+            height: 32px;
+            background-color: var(--color-accent);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+        }
+
+        /* Signup */
+        #signup {
+            align-items: center;
+            justify-content: center;
+        }
+
+        .signup-content {
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .signup-content h1 {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .signup-content > p {
+            font-size: 1.125rem;
+            margin-bottom: var(--spacing-2xl);
+        }
+
+        .input-section {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .social-proof {
+            margin-top: var(--spacing-3xl);
+            padding-top: var(--spacing-2xl);
+            border-top: 1px solid var(--color-border);
+        }
+
+        .stars {
+            font-size: 1.5rem;
+            color: #fbbf24;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .proof-text {
+            font-size: 0.875rem;
+            color: var(--color-text-tertiary);
+            margin: var(--spacing-xs) 0;
+        }
+
+        /* Intro */
+        #intro {
+            align-items: center;
+            justify-content: center;
+        }
+
+        .intro-content {
+            max-width: 600px;
+            text-align: center;
+        }
+
+        .intro-content h1 {
+            margin-bottom: var(--spacing-2xl);
+        }
+
+        .intro-body {
+            margin-bottom: var(--spacing-3xl);
+        }
+
+        .intro-body p {
+            font-size: 1.125rem;
+            line-height: 1.7;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        /* Questions */
+        #questions {
+            flex-direction: column;
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background-color: var(--color-border);
+            z-index: 100;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--color-accent);
+            transition: width 0.4s ease;
+            width: 0%;
+        }
+
+        .questions-container {
+            max-width: 900px;
+            margin: auto;
+            padding-top: var(--spacing-3xl);
+        }
+
+        .question-number {
+            font-size: 0.875rem;
+            color: var(--color-text-tertiary);
+            text-align: center;
+            margin-bottom: var(--spacing-lg);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .question-text {
+            font-size: 2rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: var(--spacing-3xl);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-lg);
+        }
+
+        .option-card {
+            padding: var(--spacing-xl);
+            background-color: var(--color-surface);
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            font-size: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .option-card:hover {
+            border-color: var(--color-accent);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .option-card.selected {
+            border-color: var(--color-accent);
+            background-color: var(--color-accent-light);
+        }
+
+        /* Recommendation */
+        #recommendation {
+            flex-direction: column;
+        }
+
+        .recommendation-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .recommendation-container h1 {
+            text-align: center;
+            margin-bottom: var(--spacing-3xl);
+        }
+
+        .avatar-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-2xl);
+            margin-bottom: var(--spacing-3xl);
+        }
+
+        .career-avatar {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--spacing-md);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .recommended-badge {
+            position: absolute;
+            top: -12px;
+            background-color: var(--color-accent);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-normal);
+            border: 3px solid transparent;
+            box-shadow: var(--shadow-md);
+            color: white;
+            font-size: 2rem;
+            font-weight: 600;
+        }
+
+        .avatar:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .avatar.selected {
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 4px var(--color-accent-light);
+        }
+
+        .career-name {
+            font-size: 0.95rem;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .reason-section,
+        .warning-section {
+            text-align: center;
+            margin-bottom: var(--spacing-2xl);
+        }
+
+        .reason-content {
+            margin-top: var(--spacing-lg);
+            padding: var(--spacing-xl);
+            background-color: var(--color-accent-light);
+            border-radius: var(--radius-lg);
+        }
+
+        .reason-list {
+            list-style: none;
+            text-align: left;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .reason-list li {
+            padding: var(--spacing-sm) 0;
+            padding-left: var(--spacing-lg);
+            position: relative;
+        }
+
+        .reason-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--color-accent);
+            font-weight: 600;
+        }
+
+        .warning-box {
+            padding: var(--spacing-xl);
+            background-color: var(--color-warning-light);
+            border: 2px solid var(--color-warning);
+            border-radius: var(--radius-lg);
+        }
+
+        .warning-text {
+            font-size: 1.125rem;
+            color: var(--color-text-primary);
+            font-weight: 500;
+            margin-bottom: var(--spacing-md);
+        }
+
+        /* Complete */
+        #complete {
+            align-items: center;
+            justify-content: center;
+        }
+
+        .complete-content {
+            max-width: 600px;
+            text-align: center;
+        }
+
+        .complete-content h1 {
+            margin-bottom: var(--spacing-2xl);
+        }
+
+        .complete-body {
+            margin-bottom: var(--spacing-3xl);
+        }
+
+        .complete-body p {
+            font-size: 1.125rem;
+            line-height: 1.7;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .selected-career {
+            margin-bottom: var(--spacing-3xl);
+            padding: var(--spacing-xl);
+            background-color: var(--color-accent-light);
+            border-radius: var(--radius-lg);
+            border: 2px solid var(--color-accent);
+        }
+
+        .career-label {
+            font-size: 0.875rem;
+            color: var(--color-text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .selected-career-name {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--color-accent);
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .avatar-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Homepage -->
+    <div id="home" class="page active">
+        <div class="container">
+            <div class="logo-section">
+                <h1 class="logo">Zero</h1>
+                <p class="tagline">Professional career training</p>
+            </div>
+
+            <div class="carousel">
+                <button class="carousel-arrow left" onclick="prevSlide()">←</button>
+                
+                <div class="placard active">
+                    <h2>Choose once. Choose well.</h2>
+                    <p>Your career path is a long-term commitment. Zero helps you decide deliberately.</p>
+                </div>
+                <div class="placard">
+                    <h2>Learn by doing real work</h2>
+                    <p>No courses. No theory-first learning. You train inside realistic job simulations.</p>
+                </div>
+                <div class="placard">
+                    <h2>Clarity before commitment</h2>
+                    <p>PathFinder helps you understand what different careers actually feel like.</p>
+                </div>
+
+                <button class="carousel-arrow right" onclick="nextSlide()">→</button>
+
+                <div class="carousel-indicators">
+                    <button class="indicator active" onclick="goToSlide(0)"></button>
+                    <button class="indicator" onclick="goToSlide(1)"></button>
+                    <button class="indicator" onclick="goToSlide(2)"></button>
+                </div>
+            </div>
+
+            <div class="cta-section">
+                <button class="btn-primary" onclick="navigateTo('signup')">Start PathFinder</button>
+            </div>
+
+            <div class="video-teaser">
+                <button class="video-button" onclick="alert('Video modal would open here')">
+                    <span class="play-icon">▶</span>
+                    <span>Watch how Zero works</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signup -->
+    <div id="signup" class="page">
+        <div class="signup-content">
+            <h1>Before we begin</h1>
+            <p>This takes about 8 minutes. There are no right or wrong answers.</p>
+
+            <div class="input-section">
+                <input type="email" class="input" id="emailInput" placeholder="Enter your email">
+            </div>
+
+            <button class="btn-primary" onclick="handleSignup()">Continue</button>
+
+            <div class="social-proof">
+                <div class="stars">★★★★★</div>
+                <p class="proof-text">Rated 4.8/5 by early users</p>
+                <p class="proof-text">Helped thousands choose the right career path</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Intro -->
+    <div id="intro" class="page">
+        <div class="intro-content">
+            <h1>Let's figure this out together.</h1>
+            
+            <div class="intro-body">
+                <p>PathFinder works like a career counselor.</p>
+                <p>You'll answer a series of short questions designed to understand how you think, work, and make decisions.</p>
+                <p>There are no right or wrong answers.</p>
+            </div>
+
+            <button class="btn-primary" onclick="navigateTo('questions')">Begin</button>
+        </div>
+    </div>
+
+    <!-- Questions -->
+    <div id="questions" class="page">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="questions-container">
+            <div class="question-number" id="questionNumber"></div>
+            <h1 class="question-text" id="questionText"></h1>
+            <div class="options-grid" id="optionsGrid"></div>
+        </div>
+    </div>
+
+    <!-- Recommendation -->
+    <div id="recommendation" class="page">
+        <div class="recommendation-container">
+            <h1>Your recommended career focus</h1>
+
+            <div class="avatar-grid" id="avatarGrid"></div>
+
+            <div class="reason-section" id="reasonSection" style="display: none;">
+                <button class="btn-secondary" onclick="toggleReason()">Why this recommendation?</button>
+                <div class="reason-content" id="reasonContent" style="display: none;">
+                    <ul class="reason-list">
+                        <li>Your answers show a preference for hands-on problem solving</li>
+                        <li>You value building and iterating quickly</li>
+                        <li>You work well with structured systems and logic</li>
+                        <li>You prefer testing ideas through experimentation</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="warning-section" id="warningSection" style="display: none;">
+                <div class="warning-box">
+                    <p class="warning-text">This path may not align with how you prefer to work.</p>
+                </div>
+            </div>
+
+            <div class="text-center" style="margin-top: 3rem;">
+                <button class="btn-primary" onclick="navigateTo('complete')" id="continueBtn">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Complete -->
+    <div id="complete" class="page">
+        <div class="complete-content">
+            <h1>PathFinder complete</h1>
+            
+            <div class="complete-body">
+                <p>You've chosen your focus.</p>
+                <p>Next, you'll begin training through real work simulations.</p>
+            </div>
+
+            <div class="selected-career" id="selectedCareerDisplay"></div>
+
+            <button class="btn-primary" onclick="alert('This would navigate to the training platform')">
+                Start your first day
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        let currentSlide = 0;
+        let currentQuestion = 0;
+        let answers = [];
+        let selectedCareer = null;
+        let recommendedCareer = null;
+
+        const careers = [
+            'Software Engineering',
+            'Product Management',
+            'Data Science',
+            'UX Design',
+            'Marketing',
+            'Sales',
+            'Operations',
+            'Finance',
+            'Customer Success'
+        ];
+
+        const questions = [
+            {
+                text: "You're given a vague problem with a tight deadline. What do you do first?",
+                options: [
+                    "Clarify the problem by talking to people",
+                    "Look at data or past examples",
+                    "Build something quickly to test ideas",
+                    "Organize tasks and define a plan"
+                ]
+            },
+            {
+                text: "When receiving feedback, you usually prefer to:",
+                options: [
+                    "Ask questions to understand it deeply",
+                    "Apply it immediately and iterate",
+                    "Compare it against your own judgment",
+                    "Discuss it with others first"
+                ]
+            },
+            {
+                text: "In a team meeting, you're most likely to:",
+                options: [
+                    "Facilitate discussion and gather input",
+                    "Present data and insights",
+                    "Propose solutions and prototypes",
+                    "Create structure and next steps"
+                ]
+            },
+            {
+                text: "When learning something new, you prefer to:",
+                options: [
+                    "Learn from others through conversation",
+                    "Study documentation and research",
+                    "Experiment hands-on immediately",
+                    "Follow a structured curriculum"
+                ]
+            },
+            {
+                text: "Your ideal work environment involves:",
+                options: [
+                    "Frequent collaboration and communication",
+                    "Deep analysis and pattern recognition",
+                    "Creating and building things",
+                    "Systems thinking and optimization"
+                ]
+            },
+            {
+                text: "When facing uncertainty, you tend to:",
+                options: [
+                    "Seek diverse perspectives",
+                    "Gather more information",
+                    "Test assumptions quickly",
+                    "Create frameworks to reduce ambiguity"
+                ]
+            },
+            {
+                text: "You feel most accomplished when you:",
+                options: [
+                    "Help others succeed",
+                    "Discover meaningful insights",
+                    "Ship something that works",
+                    "Improve a complex system"
+                ]
+            }
+        ];
+
+        // Carousel functions
+        function updateCarousel() {
+            const placards = document.querySelectorAll('.placard');
+            const indicators = document.querySelectorAll('.indicator');
+            
+            placards.forEach((p, i) => {
+                p.classList.toggle('active', i === currentSlide);
+            });
+            
+            indicators.forEach((ind, i) => {
+                ind.classList.toggle('active', i === currentSlide);
+            });
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % 3;
+            updateCarousel();
+        }
+
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + 3) % 3;
+            updateCarousel();
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            updateCarousel();
+        }
+
+        // Auto-rotate carousel
+        setInterval(nextSlide, 5000);
+
+        // Navigation
+        function navigateTo(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            
+            if (pageId === 'questions') {
+                showQuestion();
+            } else if (pageId === 'recommendation') {
+                showRecommendation();
+            } else if (pageId === 'complete') {
+                showComplete();
+            }
+        }
+
+        function handleSignup() {
+            const email = document.getElementById('emailInput').value;
+            if (email.trim()) {
+                navigateTo('intro');
+            }
+        }
+
+        // Questions
+        function showQuestion() {
+            if (currentQuestion >= questions.length) {
+                navigateTo('recommendation');
+                return;
+            }
+
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('questionNumber').textContent = 
+                `Question ${currentQuestion + 1} of ${questions.length}`;
+            document.getElementById('questionText').textContent = q.text;
+            
+            const grid = document.getElementById('optionsGrid');
+            grid.innerHTML = '';
+            
+            q.options.forEach((option, index) => {
+                const card = document.createElement('button');
+                card.className = 'option-card';
+                card.textContent = option;
+                card.onclick = () => selectOption(index);
+                grid.appendChild(card);
+            });
+        }
+
+        function selectOption(index) {
+            const cards = document.querySelectorAll('.option-card');
+            cards[index].classList.add('selected');
+            
+            answers.push(index);
+            
+            setTimeout(() => {
+                currentQuestion++;
+                showQuestion();
+            }, 400);
+        }
+
+        // Recommendation
+        function getRecommendedCareer() {
+            const counts = [0, 0, 0, 0];
+            answers.forEach(a => counts[a]++);
+            const maxIndex = counts.indexOf(Math.max(...counts));
+            const careerMap = ['Product Management', 'Data Science', 'Software Engineering', 'Operations'];
+            return careerMap[maxIndex] || 'Software Engineering';
+        }
+
+        function getCareerColor(career) {
+            const colors = [
+                '#2563eb', '#7c3aed', '#db2777', '#dc2626',
+                '#ea580c', '#ca8a04', '#16a34a', '#0891b2', '#4f46e5'
+            ];
+            return colors[career.length % colors.length];
+        }
+
+        function getInitials(name) {
+            return name.split(' ').map(w => w[0]).join('').toUpperCase();
+        }
+
+        function showRecommendation() {
+            recommendedCareer = getRecommendedCareer();
+            selectedCareer = recommendedCareer;
+            
+            const grid = document.getElementById('avatarGrid');
+            grid.innerHTML = '';
+            
+            careers.forEach(career => {
+                const container = document.createElement('div');
+                container.className = 'career-avatar';
+                container.onclick = () => selectCareer(career);
+                
+                if (career === recommendedCareer) {
+                    const badge = document.createElement('div');
+                    badge.className = 'recommended-badge';
+                    badge.textContent = 'Recommended for you';
+                    container.appendChild(badge);
+                }
+                
+                const avatar = document.createElement('div');
+                avatar.className = 'avatar';
+                if (career === selectedCareer) avatar.classList.add('selected');
+                avatar.style.backgroundColor = getCareerColor(career);
+                avatar.textContent = getInitials(career);
+                
+                const name = document.createElement('p');
+                name.className = 'career-name';
+                name.textContent = career;
+                
+                container.appendChild(avatar);
+                container.appendChild(name);
+                grid.appendChild(container);
+            });
+            
+            updateRecommendationUI();
+        }
+
+        function selectCareer(career) {
+            selectedCareer = career;
+            
+            document.querySelectorAll('.avatar').forEach((a, i) => {
+                a.classList.toggle('selected', careers[i] === career);
+            });
+            
+            updateRecommendationUI();
+        }
+
+        function updateRecommendationUI() {
+            const reasonSection = document.getElementById('reasonSection');
+            const warningSection = document.getElementById('warningSection');
+            const continueBtn = document.getElementById('continueBtn');
+            
+            if (selectedCareer === recommendedCareer) {
+                reasonSection.style.display = 'block';
+                warningSection.style.display = 'none';
+            } else {
+                reasonSection.style.display = 'none';
+                warningSection.style.display = 'block';
+            }
+            
+            continueBtn.textContent = `Continue with ${selectedCareer}`;
+        }
+
+        function toggleReason() {
+            const content = document.getElementById('reasonContent');
+            content.style.display = content.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Complete
+        function showComplete() {
+            const display = document.getElementById('selectedCareerDisplay');
+            display.innerHTML = `
+                <p class="career-label">Your career path:</p>
+                <p class="selected-career-name">${selectedCareer}</p>
+            `;
+        }
+    </script>
+</body>
+</html>

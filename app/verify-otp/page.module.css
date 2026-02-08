@@ -1,0 +1,191 @@
+.main {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-bg);
+}
+
+.container {
+    width: 100%;
+    max-width: 560px;
+    padding: var(--spacing-lg);
+}
+
+.verifyCard {
+    background: var(--color-surface-raised);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-3xl) var(--spacing-2xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2xl);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    position: relative;
+    overflow: hidden;
+}
+
+.verifyCard::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--color-accent), transparent);
+    opacity: 0.5;
+}
+
+.header {
+    text-align: center;
+}
+
+.title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: var(--spacing-sm);
+    letter-spacing: -0.02em;
+}
+
+.subtext {
+    font-size: 0.9375rem;
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+}
+
+.otpContainer {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+}
+
+.otpInput {
+    width: 3.5rem;
+    height: 4rem;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-accent);
+    transition: all var(--transition-fast);
+}
+
+.otpInput::placeholder {
+    color: var(--color-text-tertiary);
+    opacity: 0.3;
+}
+
+.otpInput:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 4px var(--color-accent-glow);
+}
+
+.otpInput.error {
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+.errorMessage {
+    color: #ef4444;
+    font-size: 0.875rem;
+    text-align: center;
+    margin-top: calc(-1 * var(--spacing-lg));
+}
+
+.submitBtn {
+    padding: 1rem;
+    background: var(--color-accent);
+    color: white;
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all var(--transition-normal);
+    cursor: pointer;
+}
+
+.submitBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.submitBtn:not(:disabled):hover {
+    background: var(--color-accent-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 0 20px var(--color-accent-glow);
+}
+
+.resendSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.resendText {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+}
+
+.resendBtn {
+    background: none;
+    border: none;
+    color: var(--color-accent);
+    font-size: 0.875rem;
+    font-weight: 600;
+    padding: 2px 4px;
+    cursor: pointer;
+    transition: color var(--transition-fast);
+}
+
+.resendBtn:disabled {
+    color: var(--color-text-tertiary);
+    cursor: not-allowed;
+}
+
+.footer {
+    text-align: center;
+}
+
+.link {
+    color: var(--color-text-secondary);
+    font-size: 0.875rem;
+    text-decoration: underline;
+    transition: color var(--transition-fast);
+}
+
+.link:hover {
+    color: var(--color-text-primary);
+}
+
+@media (max-width: 580px) {
+    .container {
+        padding: var(--spacing-md);
+    }
+
+    .verifyCard {
+        padding: var(--spacing-2xl) var(--spacing-lg);
+    }
+
+    .otpInput {
+        width: 2.75rem;
+        height: 3.5rem;
+        font-size: 1.25rem;
+    }
+
+    .otpContainer {
+        gap: var(--spacing-xs);
+    }
+
+    .title {
+        font-size: 1.5rem;
+    }
+}

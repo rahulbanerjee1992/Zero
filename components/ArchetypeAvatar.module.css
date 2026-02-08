@@ -1,0 +1,115 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-md);
+    cursor: pointer;
+    transition: all var(--transition-slow) cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 1;
+}
+
+.avatarCircle {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), inset 0 2px 5px rgba(255, 255, 255, 0.2);
+    transition: all var(--transition-slow) cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.reflection {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.05) 50%,
+            rgba(255, 255, 255, 0) 100%);
+    transform: rotate(45deg);
+    pointer-events: none;
+}
+
+.icon {
+    font-size: 2.5rem;
+    color: white;
+    text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    z-index: 2;
+}
+
+/* States */
+
+.selected .avatarCircle {
+    transform: scale(1.15);
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+.dimmed {
+    opacity: 0.4;
+    filter: grayscale(0.8) blur(0.5px);
+    transform: scale(0.9);
+}
+
+.dimmed:hover {
+    opacity: 0.7;
+    filter: grayscale(0.4);
+    transform: scale(0.95);
+}
+
+.selected.dimmed {
+    opacity: 1;
+    filter: none;
+    transform: scale(1.15);
+}
+
+/* Badges */
+
+.labelContainer {
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.recommendedBadge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: rgba(45, 212, 191, 0.1);
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+}
+
+.warningBadge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #f43f5e;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: rgba(244, 63, 94, 0.1);
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+}
+
+@media (max-width: 768px) {
+    .avatarCircle {
+        width: 70px;
+        height: 70px;
+    }
+
+    .icon {
+        font-size: 1.75rem;
+    }
+}

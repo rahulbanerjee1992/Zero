@@ -1,0 +1,76 @@
+.main {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-2xl);
+}
+
+.container {
+    max-width: 600px;
+    width: 100%;
+}
+
+.content {
+    text-align: center;
+    animation: fadeIn 0.6s ease;
+}
+
+.heading {
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-2xl);
+    line-height: 1.2;
+}
+
+.body {
+    margin-bottom: var(--spacing-3xl);
+}
+
+.body p {
+    font-size: 1.125rem;
+    color: var(--color-text-secondary);
+    line-height: 1.7;
+    margin-bottom: var(--spacing-lg);
+}
+
+.body p:last-child {
+    margin-bottom: 0;
+}
+
+.selectedCareer {
+    margin-bottom: var(--spacing-3xl);
+    padding: var(--spacing-xl);
+    background-color: var(--color-accent-light);
+    border-radius: var(--radius-lg);
+    border: 2px solid var(--color-accent);
+}
+
+.careerLabel {
+    font-size: 0.875rem;
+    color: var(--color-text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--spacing-xs);
+}
+
+.careerName {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--color-accent);
+}
+
+@media (max-width: 768px) {
+    .heading {
+        font-size: 2rem;
+    }
+
+    .body p {
+        font-size: 1rem;
+    }
+
+    .careerName {
+        font-size: 1.5rem;
+    }
+}
