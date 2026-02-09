@@ -1,10 +1,20 @@
 'use client';
 
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { usePathFinder } from '@/context/PathFinderContext';
 import styles from './page.module.css';
 
 export default function TrainingRoom() {
-    const { sex } = usePathFinder();
+    const router = useRouter();
+    const { testStatus } = usePathFinder();
+
+    // Access control
+    useEffect(() => {
+        if (testStatus !== 'COMPLETED') {
+            router.push('/pathfinder/intro');
+        }
+    }, [testStatus, router]);
 
     return (
         <main className={styles.main}>

@@ -1,188 +1,226 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { usePathFinder, careers } from '@/context/PathFinderContext';
 import ArchetypeAvatar from '@/components/ArchetypeAvatar';
 import styles from './page.module.css';
 
-type SelectionState = 'selection' | 'commitment';
+
+const careerSubtitles: Record<string, string> = {
+    'Software Engineering': 'Systems Architecture',
+    'Data Science': 'Applied Analytics',
+    'Business Analyst': 'Enterprise Insights',
+    'Marketing': 'Brand Growth',
+    'Sales': 'Client Advocacy',
+    'Security Engineering / Cyber Security': 'Digital Defense',
+    'AI / Machine Learning': 'Neural Systems',
+    'UX / UI Design': 'Human Experience',
+    'Product / Project Management': 'Strategic Delivery'
+};
 
 export default function Recommendation() {
+    const router = useRouter();
     const {
+        currentUser,
         getRecommendedCareer,
         selectedCareer,
         setSelectedCareer,
-        getCareerExplanation
+        getCareerExplanation,
+        resetPathFinder,
+        testStatus
     } = usePathFinder();
 
-    const [view, setView] = useState<SelectionState>('selection');
     const [recommendedCareer, setRecommendedCareer] = useState('');
     const [showInfo, setShowInfo] = useState(false);
-    const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
 
-    const scrollRef = useRef<HTMLDivElement>(null);
+    // Use a simple index for the selected career (0-8)
+    const [activeIndex, setActiveIndex] = useState(0);
+    const hasInitialSet = useRef(false);
+
+    // Access control
+    useEffect(() => {
+        if (testStatus !== 'COMPLETED') {
+            router.push('/pathfinder/intro');
+        }
+    }, [testStatus, router]);
 
     useEffect(() => {
-        const recommended = getRecommendedCareer();
-        setRecommendedCareer(recommended);
-        if (!selectedCareer) {
+        if (testStatus === 'COMPLETED' && !hasInitialSet.current) {
+            const recommended = getRecommendedCareer();
+            setRecommendedCareer(recommended);
             setSelectedCareer(recommended);
+            const idx = careers.indexOf(recommended);
+            setActiveIndex(idx >= 0 ? idx : 0);
+            hasInitialSet.current = true;
         }
-    }, [getRecommendedCareer, selectedCareer, setSelectedCareer]);
+    }, [getRecommendedCareer, setSelectedCareer, testStatus]);
+
+    // Also update recommendedCareer if it changes even after initial set
+    useEffect(() => {
+        if (testStatus === 'COMPLETED') {
+            setRecommendedCareer(getRecommendedCareer());
+        }
+    }, [getRecommendedCareer, testStatus]);
+
+    useEffect(() => {
+        if (selectedCareer) {
+            const idx = careers.indexOf(selectedCareer);
+            if (idx !== -1 && idx !== activeIndex) {
+                setActiveIndex(idx);
+            }
+        }
+    }, [selectedCareer, activeIndex]);
 
     const handleCareerSelect = (career: string) => {
-        if (view === 'commitment') return;
         setSelectedCareer(career);
         setShowInfo(false);
     };
 
     const handleContinue = () => {
-        if (view === 'selection') {
-            setView('commitment');
-        } else {
-            // Final commitment - logic for what happens after can be added here
-            console.log("Committed to:", selectedCareer);
-        }
+        router.push('/pathfinder/confirm');
     };
 
-    const handleGoBack = () => {
+    const handleGoBackToRecommended = () => {
         setSelectedCareer(recommendedCareer);
+    };
+
+    const [isVideoOpen, setIsVideoOpen] = useState(false);
+
+    const handleRetakeTest = () => {
+        resetPathFinder();
+        router.push('/pathfinder/questions');
     };
 
     const careerExp = selectedCareer ? getCareerExplanation(selectedCareer) : null;
     const isActuallyRecommended = selectedCareer === recommendedCareer;
 
+    // The Trio: Exact 3 items (Left, Center, Right)
+    const trio = useMemo(() => {
+        const len = careers.length;
+        const leftIdx = (activeIndex - 1 + len) % len;
+        const rightIdx = (activeIndex + 1) % len;
+
+        return [
+            { career: careers[leftIdx], index: leftIdx, position: 'left' },
+            { career: careers[activeIndex], index: activeIndex, position: 'center' },
+            { career: careers[rightIdx], index: rightIdx, position: 'right' }
+        ];
+    }, [activeIndex]);
+
     return (
-        <main className={`${styles.main} ${view === 'commitment' ? styles.commitmentView : ''}`}>
+        <main className={styles.main}>
+
             <div className={styles.container}>
-                {/* Spotlight Background Effect */}
-                <div className={styles.spotlightOverlay} />
+                {/* Spotlight Background Effect - Locked to center */}
+                <div
+                    className={styles.spotlightOverlay}
+                    style={{
+                        '--spotlight-x': '50%',
+                    } as React.CSSProperties}
+                />
 
                 {/* SCREEN 1: SELECTION */}
-                <div className={`${styles.selectionScreen} ${view === 'commitment' ? styles.fadeScaleOut : ''}`}>
-                    <h1 className={styles.heading}>
-                        {isActuallyRecommended
-                            ? "Our recommendation for you"
-                            : "Exploring a different path"}
-                    </h1>
+                <div className={styles.selectionScreen}>
+                    <div className={styles.header}>
+                        <p className={styles.statusLabel}>ANALYSIS COMPLETE</p>
+                        <h1 className={styles.heading}>
+                            {isActuallyRecommended ? "Your Recommended Path" : "Career Comparison"}
+                        </h1>
+                    </div>
 
-                    <div className={styles.avatarRowContainer} ref={scrollRef}>
-                        <div className={styles.avatarRow}>
-                            {careers.map((career) => (
-                                <ArchetypeAvatar
-                                    key={career}
-                                    career={career}
-                                    isRecommended={career === recommendedCareer}
-                                    isSelected={career === selectedCareer}
-                                    isDimmed={selectedCareer !== null && career !== selectedCareer}
-                                    onClick={() => handleCareerSelect(career)}
-                                />
+                    {/* TRIO VIEWPORT */}
+                    <div className={styles.trioViewport}>
+                        <div className={styles.trioRow}>
+                            {trio.map((item) => (
+                                <div
+                                    key={`${item.career}-${item.position}`}
+                                    className={`${styles.avatarWrapper} ${styles[item.position]}`}
+                                >
+                                    <ArchetypeAvatar
+                                        career={item.career}
+                                        subtitle={careerSubtitles[item.career]}
+                                        isRecommended={item.career === recommendedCareer}
+                                        isSelected={item.position === 'center'}
+                                        isDimmed={item.position !== 'center'}
+                                        sex={currentUser?.sex}
+                                        onClick={() => handleCareerSelect(item.career)}
+                                    />
+                                </div>
                             ))}
                         </div>
                     </div>
 
                     <div className={styles.infoSection}>
-                        <div className={styles.statusTag}>
-                            <span>
-                                {isActuallyRecommended
-                                    ? "Recommended"
-                                    : "Not recommended based on your responses"}
-                            </span>
-                            <button
-                                className={styles.infoButton}
-                                onClick={() => setShowInfo(!showInfo)}
-                            >
-                                ⓘ
-                            </button>
-                        </div>
-
-                        {showInfo && (
-                            <div className={styles.infoPanel}>
-                                <p className={styles.infoText}>
-                                    {careerExp?.alignmentDetail}
-                                </p>
-                            </div>
-                        )}
-
-                        {!isActuallyRecommended && (
-                            <button className={styles.revertButton} onClick={handleGoBack}>
-                                Go back to recommended path
-                            </button>
-                        )}
-                    </div>
-
-                    <div className={styles.ctaContainer}>
-                        <button className="btn-primary" onClick={handleContinue}>
-                            Continue with this path
-                        </button>
-                    </div>
-                </div>
-
-                {/* SCREEN 2: COMMITMENT */}
-                {view === 'commitment' && (
-                    <div className={styles.commitmentScreen}>
-                        <div className={styles.leftCol}>
-                            <div className={styles.largeAvatarContainer}>
-                                <ArchetypeAvatar
-                                    career={selectedCareer || ''}
-                                    isSelected={true}
-                                />
-                            </div>
-                        </div>
-
-                        <div className={styles.rightCol}>
-                            <h1 className={styles.title}>{selectedCareer}</h1>
-
-                            <div className={styles.section}>
-                                <p className={styles.qualities}>
-                                    {careerExp?.qualities}
-                                </p>
-                            </div>
-
-                            <div className={styles.section}>
-                                <h3 className={styles.sectionHeader}>A day in the life</h3>
-                                <p className={styles.description}>
-                                    {careerExp?.dayInTheLife}
-                                </p>
-                            </div>
-
-                            <div className={styles.videoSection}>
-                                <div
-                                    className={styles.videoPlaceholder}
-                                    onClick={() => setIsVideoModalOpen(true)}
+                        <div className={styles.interactionArea}>
+                            <div className={`${styles.statusTag} ${isActuallyRecommended ? styles.recommendedColor : styles.warningColor}`}>
+                                <span className={styles.statusIcon}>
+                                    {isActuallyRecommended ? 'ⓘ' : '⚠️'}
+                                </span>
+                                <span>
+                                    {isActuallyRecommended
+                                        ? "See why this is the recommended fit for you"
+                                        : "See why this career is not recommended for you"}
+                                </span>
+                                <button
+                                    className={styles.infoButton}
+                                    onClick={() => setShowInfo(!showInfo)}
+                                    aria-label="Toggle info"
                                 >
-                                    <div className={styles.playIcon}>▶</div>
-                                    <span className={styles.videoLabel}>{careerExp?.videoLabel}</span>
+                                    {showInfo ? '✕' : 'ⓘ'}
+                                </button>
+                            </div>
+
+                            {showInfo && careerExp && (
+                                <div className={styles.infoPanel}>
+                                    <div className={styles.infoPanelContent}>
+                                        <p className={styles.infoPanelIntro}>
+                                            {careerExp.qualitiesIntro}
+                                        </p>
+                                        <ul className={styles.qualitiesList}>
+                                            {careerExp.qualities?.map((q, idx) => (
+                                                <li key={idx} className={styles.qualityItem}>{q}</li>
+                                            ))}
+                                        </ul>
+
+                                        {!isActuallyRecommended && (
+                                            <p className={styles.fallbackRecommendation}>
+                                                Based on your responses, this role may feel misaligned. We recommend <strong>{recommendedCareer}</strong> instead.
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-
-                            <div className={styles.finalCta}>
-                                <button className="btn-primary" onClick={() => window.location.href = '/'}>
-                                    Commit to this path
-                                </button>
-                                <button className={styles.backLink} onClick={() => setView('selection')}>
-                                    Go back to selection
-                                </button>
-                            </div>
+                            )}
                         </div>
-                    </div>
-                )}
-            </div>
 
-            {/* VIDEO MODAL */}
-            {isVideoModalOpen && (
-                <div className={styles.modalOverlay} onClick={() => setIsVideoModalOpen(false)}>
-                    <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
-                        <button className={styles.closeModal} onClick={() => setIsVideoModalOpen(false)}>✕</button>
-                        <div className={styles.videoPlayer}>
-                            <div className={styles.placeholderVideo}>
-                                <p>Previewing <strong>{selectedCareer}</strong></p>
-                                <p style={{ fontSize: '0.8rem', opacity: 0.6 }}>[Video Content Placeholder]</p>
-                            </div>
+                        <div className={styles.ctaStack}>
+                            {isActuallyRecommended ? (
+                                <>
+                                    <button className="btn-primary" onClick={handleContinue}>
+                                        Continue
+                                    </button>
+                                    <button className={styles.btnTertiary} onClick={handleRetakeTest}>
+                                        Retake personality test
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <button className="btn-primary" onClick={handleGoBackToRecommended}>
+                                        Switch to recommended path
+                                    </button>
+                                    <button className={styles.btnSecondary} onClick={handleContinue}>
+                                        Continue with this path
+                                    </button>
+                                    <button className={styles.btnTertiary} onClick={handleRetakeTest}>
+                                        Retake personality test
+                                    </button>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>
-            )}
+
+            </div>
         </main>
     );
 }

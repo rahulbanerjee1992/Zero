@@ -41,14 +41,14 @@ export default function Commit() {
     const getQuote = (career: string) => {
         const quotes: { [key: string]: string } = {
             'Software Engineering': 'Build systems that scale.',
-            'Product Management': 'Shape products that matter.',
             'Data Science': 'Turn data into decisions.',
-            'UX Design': 'Design experiences that delight.',
+            'Business Analyst': 'Bridge data with organizational impact.',
             'Marketing': 'Tell stories that resonate.',
             'Sales': 'Build relationships that last.',
-            'Operations': 'Create efficiency at scale.',
-            'Finance': 'Drive strategic value.',
-            'Customer Success': 'Make customers thrive.'
+            'Security Engineering / Cyber Security': 'Defend the digital frontier.',
+            'AI / Machine Learning': 'Train the future of intelligence.',
+            'UX / UI Design': 'Design experiences that delight.',
+            'Product / Project Management': 'Deliver strategy that matters.'
         };
         return quotes[career] || 'Make an impact.';
     };

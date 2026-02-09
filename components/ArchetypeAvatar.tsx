@@ -5,76 +5,89 @@ import styles from './ArchetypeAvatar.module.css';
 
 interface ArchetypeAvatarProps {
     career: string;
+    subtitle?: string;
     isRecommended?: boolean;
     isSelected?: boolean;
     isDimmed?: boolean;
+    isFullBody?: boolean;
+    isFrameless?: boolean;
+    sex?: string;
     onClick?: () => void;
 }
 
-const getCareerIcon = (career: string) => {
-    switch (career) {
-        case 'Software Engineering': return '⟨/⟩';
-        case 'Product Management': return '⬚';
-        case 'Data Science': return '⌬';
-        case 'UX Design': return '◎';
-        case 'Marketing': return '✦';
-        case 'Sales': return '↗';
-        case 'Operations': return '⚙︎';
-        case 'Finance': return '$';
-        case 'Customer Success': return '♥';
-        default: return '?';
-    }
-};
-
-const getCareerGradient = (career: string) => {
-    const gradients: Record<string, string> = {
-        'Software Engineering': 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-        'Product Management': 'linear-gradient(135deg, #8b5cf6, #5b21b6)',
-        'Data Science': 'linear-gradient(135deg, #06b6d4, #0891b2)',
-        'UX Design': 'linear-gradient(135deg, #ec4899, #be185d)',
-        'Marketing': 'linear-gradient(135deg, #f59e0b, #d97706)',
-        'Sales': 'linear-gradient(135deg, #10b981, #047857)',
-        'Operations': 'linear-gradient(135deg, #64748b, #334155)',
-        'Finance': 'linear-gradient(135deg, #facc15, #ca8a04)',
-        'Customer Success': 'linear-gradient(135deg, #f43f5e, #e11d48)'
-    };
-    return gradients[career] || 'linear-gradient(135deg, #94a3b8, #475569)';
-};
-
 export default function ArchetypeAvatar({
     career,
+    subtitle,
     isRecommended = false,
     isSelected = false,
     isDimmed = false,
+    isFullBody = false,
+    isFrameless = false,
+    sex,
     onClick
 }: ArchetypeAvatarProps) {
+    const [imgError, setImgError] = React.useState(false);
+
+    // Reset error when career changes
+    React.useEffect(() => {
+        setImgError(false);
+    }, [career, sex]);
+
+    const getAvatarFilename = (career: string, sex?: string) => {
+        if (!sex) return '';
+        const normalizedCareer = career.toLowerCase()
+            .replace(/[^a-z0-9]/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+        return `/avatars/${normalizedCareer} ${sex.toLowerCase()}.png`;
+    };
+
     const containerClasses = [
         styles.container,
         isSelected ? styles.selected : '',
-        isDimmed ? styles.dimmed : ''
+        isDimmed ? styles.dimmed : '',
+        isFullBody ? styles.fullBody : '',
+        isFrameless ? styles.frameless : '',
+        isRecommended ? styles.recommended : ''
     ].join(' ');
 
     return (
         <div className={containerClasses} onClick={onClick}>
-            <div
-                className={styles.avatarCircle}
-                style={{ background: getCareerGradient(career) }}
-            >
-                <div className={styles.reflection} />
-                <span className={styles.icon}>{getCareerIcon(career)}</span>
-            </div>
-            <div className={styles.labelContainer}>
-                {isRecommended && isSelected && (
-                    <div className={styles.recommendedBadge}>
-                        Recommended
+            <div className={isFrameless ? styles.framelessContainer : styles.card}>
+                <div className={styles.imageWrapper}>
+                    <div className={styles.imagePlaceholder}>
+                        {!imgError ? (
+                            <img
+                                src={getAvatarFilename(career, sex)}
+                                alt={`${career} Avatar`}
+                                className={styles.avatarImage}
+                                onError={() => setImgError(true)}
+                            />
+                        ) : (
+                            <div className={styles.avatarSilhoutte} />
+                        )}
+                    </div>
+                </div>
+
+                {!isFrameless && (
+                    <div className={styles.content}>
+                        <h3 className={styles.careerTitle}>{career}</h3>
+                        {subtitle && <p className={styles.careerSubtitle}>{subtitle}</p>}
                     </div>
                 )}
-                {isSelected && !isRecommended && (
-                    <div className={styles.warningBadge}>
-                        Not recommended
-                    </div>
-                )}
             </div>
+
+            {isFrameless && subtitle && (
+                <div className={styles.framelessLabel}>
+                    <p className={styles.careerSubtitle}>{subtitle}</p>
+                </div>
+            )}
+
+            {!isFrameless && isRecommended && (
+                <div className={styles.recommendedTagOuter}>
+                    <div className={styles.recommendedTag}>RECOMMENDED</div>
+                </div>
+            )}
         </div>
     );
 }

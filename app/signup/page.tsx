@@ -8,15 +8,27 @@ import styles from './page.module.css';
 
 export default function Signup() {
     const router = useRouter();
-    const { setSex } = usePathFinder();
+    const { signUp } = usePathFinder();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [selectedSex, setSelectedSex] = useState('');
+    const [error, setError] = useState('');
 
-    const handleSignup = (e: React.FormEvent) => {
+    const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault();
-        setSex(selectedSex);
-        router.push('/verify-otp');
+        setError('');
+
+        const result = await signUp(email, password, selectedSex);
+
+        if (result.success) {
+            router.push('/pathfinder/intro');
+        } else {
+            if (result.error === 'USER_EXISTS') {
+                setError('An account with this email already exists.');
+            } else {
+                setError('Signup failed. Please try again.');
+            }
+        }
     };
 
     return (
@@ -31,6 +43,8 @@ export default function Signup() {
                     </div>
 
                     <form className={styles.form} onSubmit={handleSignup}>
+                        {error && <div className={styles.errorMessage}>{error}</div>}
+
                         <div className={styles.inputGroup}>
                             <label htmlFor="email" className={styles.label}>Email address</label>
                             <input
@@ -60,7 +74,7 @@ export default function Signup() {
                         <div className={styles.inputGroup}>
                             <label className={styles.label}>Sex</label>
                             <div className={styles.sexToggleGroup}>
-                                {['Male', 'Female', 'Other'].map((option) => (
+                                {['Male', 'Female'].map((option) => (
                                     <button
                                         key={option}
                                         type="button"

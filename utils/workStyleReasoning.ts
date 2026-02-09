@@ -283,7 +283,7 @@ export function mapWorkStyleToCareers(
     const { dominantTraits } = workStyle;
     const alignments: { career: string; score: number; alignmentReason: string }[] = [];
 
-    // Software Engineering
+    // 1. Software Engineering
     alignments.push({
         career: 'Software Engineering',
         score: calculateScore(dominantTraits, {
@@ -295,19 +295,7 @@ export function mapWorkStyleToCareers(
         alignmentReason: 'Strong fit for iterative building with technical precision'
     });
 
-    // Product Management
-    alignments.push({
-        career: 'Product Management',
-        score: calculateScore(dominantTraits, {
-            collaborationPreference: 'collaborative',
-            communicationInstinct: 'external',
-            ambiguityComfort: 'high',
-            detailOrientation: 'big-picture'
-        }),
-        alignmentReason: 'Aligns with collaborative decision-making and strategic thinking'
-    });
-
-    // Data Science
+    // 2. Data Science
     alignments.push({
         career: 'Data Science',
         score: calculateScore(dominantTraits, {
@@ -316,34 +304,22 @@ export function mapWorkStyleToCareers(
             detailOrientation: 'detail-focused',
             communicationInstinct: 'internal'
         }),
-        alignmentReason: 'Matches analytical depth and independent problem-solving approach'
+        alignmentReason: 'Matches analytical depth and independent problem-solving'
     });
 
-    // UX Design
+    // 3. Business Analyst
     alignments.push({
-        career: 'UX Design',
-        score: calculateScore(dominantTraits, {
-            collaborationPreference: 'collaborative',
-            feedbackTolerance: 'immediate',
-            ambiguityComfort: 'high',
-            actionBias: 'action-first'
-        }),
-        alignmentReason: 'Fits iterative design process with user feedback integration'
-    });
-
-    // Operations
-    alignments.push({
-        career: 'Operations',
+        career: 'Business Analyst',
         score: calculateScore(dominantTraits, {
             detailOrientation: 'detail-focused',
-            riskTolerance: 'cautious',
-            ambiguityComfort: 'low',
-            actionBias: 'understanding-first'
+            actionBias: 'understanding-first',
+            collaborationPreference: 'collaborative',
+            ambiguityComfort: 'medium'
         }),
-        alignmentReason: 'Suits systematic optimization and process-driven work'
+        alignmentReason: 'Suits bridging data insights with organizational needs'
     });
 
-    // Marketing
+    // 4. Marketing
     alignments.push({
         career: 'Marketing',
         score: calculateScore(dominantTraits, {
@@ -352,10 +328,10 @@ export function mapWorkStyleToCareers(
             actionBias: 'action-first',
             ambiguityComfort: 'high'
         }),
-        alignmentReason: 'Aligns with creative experimentation and audience engagement'
+        alignmentReason: 'Aligns with audience engagement and creative experimentation'
     });
 
-    // Sales
+    // 5. Sales
     alignments.push({
         career: 'Sales',
         score: calculateScore(dominantTraits, {
@@ -364,31 +340,55 @@ export function mapWorkStyleToCareers(
             feedbackTolerance: 'immediate',
             riskTolerance: 'experimental'
         }),
-        alignmentReason: 'Matches relationship-building and adaptive communication style'
+        alignmentReason: 'Matches relationship-building and adaptive communication'
     });
 
-    // Finance
+    // 6. Security Engineering / Cyber Security
     alignments.push({
-        career: 'Finance',
+        career: 'Security Engineering / Cyber Security',
         score: calculateScore(dominantTraits, {
             detailOrientation: 'detail-focused',
-            actionBias: 'understanding-first',
             riskTolerance: 'cautious',
-            collaborationPreference: 'independent'
+            actionBias: 'understanding-first',
+            ambiguityComfort: 'medium'
         }),
-        alignmentReason: 'Fits analytical rigor and risk-aware decision making'
+        alignmentReason: 'Suits rigorous system protection and risk mitigation'
     });
 
-    // Customer Success
+    // 7. AI / Machine Learning
     alignments.push({
-        career: 'Customer Success',
+        career: 'AI / Machine Learning',
+        score: calculateScore(dominantTraits, {
+            actionBias: 'understanding-first',
+            detailOrientation: 'detail-focused',
+            ambiguityComfort: 'high',
+            riskTolerance: 'experimental'
+        }),
+        alignmentReason: 'Aligns with complex modeling and algorithmic experimentation'
+    });
+
+    // 8. UX / UI Design
+    alignments.push({
+        career: 'UX / UI Design',
+        score: calculateScore(dominantTraits, {
+            collaborationPreference: 'collaborative',
+            feedbackTolerance: 'immediate',
+            ambiguityComfort: 'high',
+            actionBias: 'action-first'
+        }),
+        alignmentReason: 'Fits iterative human-centered design and prototyping'
+    });
+
+    // 9. Product / Project Management
+    alignments.push({
+        career: 'Product / Project Management',
         score: calculateScore(dominantTraits, {
             collaborationPreference: 'collaborative',
             communicationInstinct: 'external',
-            feedbackTolerance: 'immediate',
-            ambiguityComfort: 'medium'
+            ambiguityComfort: 'high',
+            detailOrientation: 'big-picture'
         }),
-        alignmentReason: 'Suits empathetic problem-solving and relationship management'
+        alignmentReason: 'Aligns with team alignment and end-to-end delivery'
     });
 
     // Sort by alignment score

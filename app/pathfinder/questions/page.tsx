@@ -80,15 +80,23 @@ const questions = [
 
 export default function Questions() {
     const router = useRouter();
-    const { addAnswer, answers } = usePathFinder();
+    const { addAnswer, answers, setTestStatus } = usePathFinder();
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [selectedOption, setSelectedOption] = useState<number | null>(null);
 
+    // Resume from last answered question
+    useEffect(() => {
+        if (answers && answers.length > 0) {
+            setCurrentQuestion(answers.length);
+        }
+    }, []);
+
     useEffect(() => {
         if (currentQuestion >= questions.length) {
+            setTestStatus('COMPLETED');
             router.push('/pathfinder/recommendation');
         }
-    }, [currentQuestion, router]);
+    }, [currentQuestion, router, setTestStatus]);
 
     const handleOptionSelect = (optionIndex: number) => {
         setSelectedOption(optionIndex);

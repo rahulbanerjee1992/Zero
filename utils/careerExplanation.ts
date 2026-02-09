@@ -15,10 +15,11 @@
 import { WorkStyleTendencies } from './workStyleReasoning';
 
 export interface CareerExplanation {
-    qualities: string;
+    qualities: string[];
     dayInTheLife: string;
     videoLabel: string;
     alignmentDetail: string;
+    qualitiesIntro: string;
 }
 
 /**
@@ -29,14 +30,19 @@ export function generateCareerExplanation(
     recommendedCareer: string,
     workStyle: WorkStyleTendencies
 ): CareerExplanation {
-    const qualities = generateQualities(career, workStyle);
+    const isRecommended = career === recommendedCareer;
+    const qualities = generateQualitiesList(career, workStyle, isRecommended);
     const dayInTheLife = generateDayInTheLife(career);
     const alignmentDetail = generateAlignmentDetail(career, recommendedCareer, workStyle);
+    const qualitiesIntro = isRecommended
+        ? "This path fits you because you demonstrated:"
+        : "People who succeed in this role typically show:";
 
     return {
         qualities,
         dayInTheLife,
         alignmentDetail,
+        qualitiesIntro,
         videoLabel: "Watch a short preview"
     };
 }
@@ -112,26 +118,61 @@ function generateMisalignmentNarrative(
 }
 
 /**
- * Generate the qualities paragraph
+ * Generate specific qualities/behaviors observed or required for the role
  */
-function generateQualities(career: string, workStyle: WorkStyleTendencies): string {
+function generateQualitiesList(career: string, workStyle: WorkStyleTendencies, isRecommended: boolean): string[] {
     const { dominantTraits } = workStyle;
 
-    // Career-specific qualities templates
-    const paragraphs: Record<string, string> = {
-        'Software Engineering': generateSoftwareEngineeringQualities(dominantTraits),
-        'Product Management': generateProductManagementQualities(dominantTraits),
-        'Data Science': generateDataScienceQualities(dominantTraits),
-        'UX Design': generateUXDesignQualities(dominantTraits),
-        'Operations': generateOperationsQualities(dominantTraits),
-        'Marketing': generateMarketingQualities(dominantTraits),
-        'Sales': generateSalesQualities(dominantTraits),
-        'Finance': generateFinanceQualities(dominantTraits),
-        'Customer Success': generateCustomerSuccessQualities(dominantTraits)
-    };
+    if (isRecommended) {
+        // Return observed qualities
+        const qualities = [];
+        if (traitsMapping.actionBias[dominantTraits.actionBias]) qualities.push(traitsMapping.actionBias[dominantTraits.actionBias]);
+        if (traitsMapping.detailOrientation[dominantTraits.detailOrientation]) qualities.push(traitsMapping.detailOrientation[dominantTraits.detailOrientation]);
+        if (traitsMapping.collaborationPreference[dominantTraits.collaborationPreference]) qualities.push(traitsMapping.collaborationPreference[dominantTraits.collaborationPreference]);
+        if (traitsMapping.ambiguityComfort[dominantTraits.ambiguityComfort]) qualities.push(traitsMapping.ambiguityComfort[dominantTraits.ambiguityComfort]);
 
-    return paragraphs[career] || `${career} professionals tend to be adaptable and focused. They enjoy solving problems and contributing to their team's success through consistent effort and clear communication.`;
+        return qualities.length > 0 ? qualities : ["Adaptable problem solving", "Collaborative mindset"];
+    } else {
+        // Return qualities typically required for this non-recommended career
+        // that the user might have shown the opposite of
+        const requirements: Record<string, string[]> = {
+            'Software Engineering': ["Focus on deep technical precision", "Systematic debugging mindset", "Patient iterative building"],
+            'Data Science': ["Rigorous statistical validation", "Complex data pattern recognition", "Evidence-based decision making"],
+            'Business Analyst': ["Bridging data with business context", "Stakeholder requirement gathering", "Organizational process mapping"],
+            'Marketing': ["Dynamic growth experimentation", "Strategic brand storytelling", "Audience-centric messaging"],
+            'Sales': ["High resilience and persistence", "Relationship-driven persuasion", "Observed focus on client needs"],
+            'Security Engineering / Cyber Security': ["Rigorous system monitoring", "Threat landscape analysis", "Proactive vulnerability mitigation"],
+            'AI / Machine Learning': ["Advanced algorithmic design", "Neural network optimization", "Large-data pattern inference"],
+            'UX / UI Design': ["Deep user empathy", "Iterative human-centered prototyping", "Visual and structural precision"],
+            'Product / Project Management': ["High comfort with radical ambiguity", "Cross-functional strategic alignment", "Long-term roadmap thinking"]
+        };
+        return requirements[career] || ["Specific specialized skills", "Targeted domain expertise"];
+    }
 }
+
+const traitsMapping = {
+    actionBias: {
+        'action-first': "A strong bias for immediate action",
+        'understanding-first': "Structured problem solving and analysis",
+        'balanced': "A balanced approach to action and understanding"
+    },
+    detailOrientation: {
+        'detail-focused': "Meticulous focus on technical precision",
+        'big-picture': "Broad strategic thinking and vision",
+        'balanced': "Balanced focus on detail and high-level strategy"
+    },
+    collaborationPreference: {
+        'collaborative': "Natural instinct for team collaboration",
+        'independent': "Ability to perform deep independent work",
+        'balanced': "Comfortable with both collaborative and independent work"
+    },
+    ambiguityComfort: {
+        'high': "High comfort with radical ambiguity",
+        'moderate': "Balanced approach to certainty and exploration",
+        'medium': "Balanced approach to certainty and exploration",
+        'low': "Preference for clear, structured paths"
+    }
+};
 
 /**
  * Generate "Day in the Life" paragraph
@@ -139,56 +180,46 @@ function generateQualities(career: string, workStyle: WorkStyleTendencies): stri
 function generateDayInTheLife(career: string): string {
     const descriptions: Record<string, string> = {
         'Software Engineering': "A typical day involves understanding requirements, writing and reviewing code, debugging issues, collaborating with teammates, and gradually improving systems.",
-        'Product Management': "A typical day involves meeting with stakeholders, defining product requirements, prioritizing the roadmap, and ensuring the team is aligned on the core vision.",
         'Data Science': "A typical day involves extracting and cleaning data, building statistical models, analyzing results, and communicating insights to help guide business decisions.",
-        'UX Design': "A typical day involves researching user needs, creating wireframes and prototypes, conducting usability tests, and iterating on designs based on feedback.",
-        'Operations': "A typical day involves monitoring system performance, optimizing workflows, managing resources, and ensuring the organization's infrastructure runs smoothly.",
+        'Business Analyst': "A typical day involves meeting with stakeholders to gather requirements, analyzing data to find business opportunities, and building documentation that bridges the gap between teams.",
         'Marketing': "A typical day involves planning campaigns, creating content, analyzing audience engagement, and refining messaging to drive awareness and growth.",
         'Sales': "A typical day involves identifying prospects, building relationships, understanding customer needs, and navigating conversations to help clients find the right solutions.",
-        'Finance': "A typical day involves analyzing financial data, building projection models, evaluating risks, and providing insights to support strategic investment decisions.",
-        'Customer Success': "A typical day involves onboarding new users, solving customer problems, gathering product feedback, and ensuring clients achieve their long-term goals."
+        'Security Engineering / Cyber Security': "A typical day involves monitoring network traffic, analyzing potential vulnerabilities, responding to incidents, and building robust defenses for organizational data.",
+        'AI / Machine Learning': "A typical day involves designing experimental models, training algorithms on large datasets, optimizing performance metrics, and deploying intelligent systems.",
+        'UX / UI Design': "A typical day involves researching user needs, creating wireframes and prototypes, conducting usability tests, and iterating on designs based on feedback.",
+        'Product / Project Management': "A typical day involves meeting with stakeholders, defining requirements, prioritizing the roadmap, and ensuring the team is aligned on the core vision."
     };
 
     return descriptions[career] || "A typical day involves applying your specific skills to solve challenges, collaborating with your team, and contributing to the overall mission of the organization.";
 }
 
 // Career-specific paragraph generators
+// These could be further expanded for all 9 roles, but for now we'll ensure they don't reference old roles.
 
 function generateSoftwareEngineeringQualities(traits: WorkStyleTendencies['dominantTraits']): string {
-    if (traits.actionBias === 'action-first' && traits.feedbackTolerance === 'immediate') {
-        return "Software engineers tend to be patient, detail-oriented, and comfortable working through complex problems. They enjoy building systems step by step, debugging thoughtfully, and improving things over time.";
-    }
     return "Software engineers are focused and analytical. They enjoy building reliable systems and solving technical challenges through iteration and attention to detail.";
-}
-
-function generateProductManagementQualities(traits: WorkStyleTendencies['dominantTraits']): string {
-    return "Product managers tend to be collaborative, vision-oriented, and comfortable with ambiguity. They enjoy aligning teams, defining goals, and ensuring that products solve real user problems.";
 }
 
 function generateDataScienceQualities(traits: WorkStyleTendencies['dominantTraits']): string {
     return "Data scientists tend to be curious, analytical, and highly precise. They enjoy digging into complex data sets, finding hidden patterns, and using evidence to drive strategic decisions.";
 }
 
-function generateUXDesignQualities(traits: WorkStyleTendencies['dominantTraits']): string {
-    return "UX designers tend to be empathetic, creative, and detail-oriented. They enjoy understanding human behavior, prototyping solutions, and creating experiences that are both beautiful and functional.";
+function generateUXUIDesignQualities(traits: WorkStyleTendencies['dominantTraits']): string {
+    return "UX/UI designers tend to be empathetic, creative, and detail-oriented. They enjoy understanding human behavior, prototyping solutions, and creating experiences that are both beautiful and functional.";
 }
 
-function generateOperationsQualities(traits: WorkStyleTendencies['dominantTraits']): string {
-    return "Operations professionals tend to be systematic, organized, and focused on efficiency. They enjoy optimizing workflows, solving logistical puzzles, and building reliable foundations for growth.";
+function generateProductProjectManagementQualities(traits: WorkStyleTendencies['dominantTraits']): string {
+    return "Product and project managers tend to be collaborative, vision-oriented, and comfortable with ambiguity. They enjoy aligning teams, defining goals, and ensuring that products solve real user problems.";
 }
 
-function generateMarketingQualities(traits: WorkStyleTendencies['dominantTraits']): string {
-    return "Marketing professionals tend to be creative, strategic, and data-aware. They enjoy crafting compelling stories, experimenting with messaging, and reaching audiences through meaningful connection.";
+function generateBusinessAnalystQualities(traits: WorkStyleTendencies['dominantTraits']): string {
+    return "Business analysts tend to be observant, structured, and communicative. They enjoy finding clarity in organizational needs and translating data into actionable business requirements.";
 }
 
-function generateSalesQualities(traits: WorkStyleTendencies['dominantTraits']): string {
-    return "Sales professionals tend to be resilient, communicative, and relationship-focused. They enjoy understanding customer needs, building trust, and helping others find value in new solutions.";
+function generateSecurityEngineeringQualities(traits: WorkStyleTendencies['dominantTraits']): string {
+    return "Security professionals tend to be vigilant, cautious, and detail-oriented. They enjoy protecting complex systems and staying ahead of potential threats through rigorous analysis.";
 }
 
-function generateFinanceQualities(traits: WorkStyleTendencies['dominantTraits']): string {
-    return "Finance professionals tend to be rigorous, risk-aware, and detail-focused. They enjoy modeling scenarios, analyzing financial health, and providing the clarity needed for sound investment.";
-}
-
-function generateCustomerSuccessQualities(traits: WorkStyleTendencies['dominantTraits']): string {
-    return "Customer success professionals tend to be empathetic, proactive, and problem-solvers. They enjoy building long-term relationships, helping users overcome hurdles, and advocating for the customer's voice.";
+function generateAIQuality(traits: WorkStyleTendencies['dominantTraits']): string {
+    return "AI and Machine Learning specialists tend to be experimental and mathematically precise. They enjoy solving high-complexity problems through algorithmic innovation and data-driven learning.";
 }

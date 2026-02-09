@@ -7,12 +7,61 @@ import styles from './page.module.css';
 
 export default function Home() {
     const router = useRouter();
-    const { setEmail } = usePathFinder();
+    const { signIn } = usePathFinder();
     const [emailInput, setEmailInput] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const [showAccountNotFoundModal, setShowAccountNotFoundModal] = useState(false);
+
+    const handleSignIn = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError('');
+
+        const result = await signIn(emailInput, password);
+
+        if (result.success) {
+            // Check test state in context (will be updated after signIn success)
+            // But context update might be async, so we might need another way or rely on useEffect in context
+            // Actually, context signIn updates state immediately.
+            // Let's rely on a manual check of localStorage or just trust it.
+            const sessionUser = localStorage.getItem('zero_session_user');
+            if (sessionUser) {
+                const user = JSON.parse(sessionUser);
+                if (user.testStatus === 'COMPLETED') {
+                    router.push('/pathfinder/recommendation');
+                } else {
+                    router.push('/pathfinder/intro');
+                }
+            }
+        } else {
+            if (result.error === 'USER_NOT_FOUND') {
+                setShowAccountNotFoundModal(true);
+            } else if (result.error === 'INVALID_CREDENTIALS') {
+                setError('Incorrect email or password. Please try again.');
+            } else {
+                setError('An error occurred. Please try again.');
+            }
+        }
+    };
 
     return (
         <main className={styles.main}>
+            {showAccountNotFoundModal && (
+                <div className={styles.modalOverlay}>
+                    <div className={styles.modal}>
+                        <p className={styles.modalText}>
+                            This account does not exist. Please check your email or sign up.
+                        </p>
+                        <button
+                            className={styles.modalOkBtn}
+                            onClick={() => setShowAccountNotFoundModal(false)}
+                        >
+                            OK
+                        </button>
+                    </div>
+                </div>
+            )}
+
             <div className={styles.splitLayout}>
                 <section className={styles.leftSection}>
                     <div className={styles.contentWrapper}>
@@ -40,11 +89,9 @@ export default function Home() {
                             <h2 className={styles.authTitle}>Sign in to Zero</h2>
                             <p className={styles.authSubtext}>Continue your journey where you left off.</p>
                         </div>
-                        <form className={styles.form} onSubmit={(e) => {
-                            e.preventDefault();
-                            setEmail(emailInput);
-                            router.push('/verify-otp');
-                        }}>
+                        <form className={styles.form} onSubmit={handleSignIn}>
+                            {error && <div className={styles.errorMessage}>{error}</div>}
+
                             <div className={styles.inputGroup}>
                                 <input
                                     type="email"
