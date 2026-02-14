@@ -54,7 +54,6 @@
 .careerLabel {
     font-size: 0.875rem;
     color: var(--color-text-tertiary);
-    text-transform: uppercase;
     letter-spacing: 0.15em;
     margin-bottom: 12px;
 }

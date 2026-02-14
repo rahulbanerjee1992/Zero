@@ -56,7 +56,6 @@
     color: var(--color-accent);
     letter-spacing: 0.2em;
     margin-bottom: var(--spacing-xs);
-    text-transform: uppercase;
 }
 
 .heading {
@@ -321,4 +320,945 @@
     .heading {
         font-size: 2.5rem;
     }
+}
+
+/* PROGRESSIVE DISCLOSURE STYLES */
+
+.detailsOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.detailsModal {
+    background: #1a1a1a;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    position: relative;
+    animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modalHeader {
+    padding: 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.modalTitle {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #fff;
+    margin: 0;
+}
+
+.closeButton {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.2s;
+    padding: 4px;
+    line-height: 1;
+}
+
+.closeButton:hover {
+    color: #fff;
+}
+
+.modalContent {
+    padding: 24px;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+/* Overall Match Metric */
+.matchMetricContainer {
+    text-align: center;
+    padding: 24px 0 12px;
+}
+
+.matchPercentage {
+    font-size: 4rem;
+    font-weight: 800;
+    line-height: 1;
+    background: linear-gradient(135deg, #fff 0%, #a5a5a5 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+    letter-spacing: -2px;
+}
+
+.matchLabel {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+}
+
+.labelStrong {
+    background: rgba(0, 255, 0, 0.1);
+    color: #4ade80;
+}
+
+.labelModerate {
+    background: rgba(255, 255, 0, 0.1);
+    color: #facc15;
+}
+
+.labelLow {
+    background: rgba(255, 0, 0, 0.1);
+    color: #f87171;
+}
+
+.matchSentence {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.95rem;
+    margin-bottom: 24px;
+    font-weight: 400;
+    line-height: 1.5;
+    max-width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Why This Match Toggle */
+.whyMatchToggle {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 20px;
+    transition: all 0.2s;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 24px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.whyMatchToggle:hover {
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Simplified Dimensions Grid */
+.dimensionsGrid {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 24px;
+    text-align: left;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 16px;
+    border-radius: 12px;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.dimensionRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+}
+
+.dimensionRow:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.dimensionLabel {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+}
+
+.dimensionValue {
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+/* Advisor Block */
+.advisorBlock {
+    background: rgba(50, 100, 255, 0.1);
+    border: 1px solid rgba(50, 100, 255, 0.2);
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 24px;
+    text-align: left;
+}
+
+.advisorTitle {
+    color: #60a5fa;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.advisorText {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.advisorCareer {
+    font-weight: 700;
+    color: #fff;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Override existing interaction area to be simpler */
+.statusTag {
+    display: none;
+    /* Hide old status tag */
+}
+
+.simpleResultArea {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+/* INSIGHT STRIP */
+.insightStrip {
+    text-align: center;
+    padding: 24px 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 40px;
+}
+
+.insightText {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.9);
+    max-width: 600px;
+    margin: 0 auto;
+    font-weight: 500;
+}
+
+.insightHighlight {
+    color: var(--color-accent);
+    font-weight: 700;
+}
+
+/* DETAIL PAGE (2-COLUMN LAYOUT) */
+.detailContainer {
+    display: grid;
+    grid-template-columns: 1fr 0.8fr;
+    /* Shift balance to left for the massive avatar */
+    gap: 60px;
+    max-width: 1600px;
+    /* Increased width to fit 925px avatar + content */
+    margin: 0 auto;
+    padding: 0 40px 100px;
+    align-items: start;
+}
+
+.detailLeft {
+    position: sticky;
+    top: 40px;
+    height: 80vh;
+    display: flex;
+    justify-content: center;
+    align-items: start;
+}
+
+/* Override Avatar styles for Detail View Left */
+.detailLeft>div {
+    /* Ensure it accommodates the massive gargantuan card */
+    max-width: 925px;
+    width: 100%;
+}
+
+.detailRight {
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.detailHeadline {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 8px;
+    background: linear-gradient(to right, #fff, #aaa);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    /* Fallback */
+}
+
+.narrativeSection {
+    margin-bottom: 8px;
+}
+
+.narrativeTitle {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.4);
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+
+.narrativeText {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.thrivesList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.thrivesItem {
+    position: relative;
+    padding-left: 24px;
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.thrivesItem::before {
+    content: "“";
+    position: absolute;
+    left: 0;
+    color: var(--color-accent);
+    font-size: 1.5em;
+    line-height: 1;
+    top: -4px;
+}
+
+/* CTA Stack Override */
+.detailCtaStack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+@media (max-width: 768px) {
+    .detailContainer {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    .detailLeft {
+        position: relative;
+        top: 0;
+        height: 50vh;
+        /* Shorter on mobile */
+    }
+}
+
+/* Structured Comparison Table */
+.comparisonTable {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.comparisonRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.comparisonRow:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.compRole,
+.compUser {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.compUser {
+    text-align: right;
+    align-items: flex-end;
+}
+
+.compLabel {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.4);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+
+.compValue {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.textMatch {
+    color: #4ade80;
+    /* Green */
+}
+
+.textConflict {
+    color: #f87171;
+    /* Red */
+}
+
+.textNeutral {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* SECTION: SELECTION SCREEN REFINEMENTS */
+.infoToggleContainer {
+    display: flex;
+    justify-content: center;
+    margin-top: 16px;
+    margin-bottom: 16px;
+    width: 100%;
+}
+
+.infoButton {
+    width: auto;
+    /* Override circle shape */
+    height: 40px;
+    padding: 0 20px;
+    border-radius: 20px;
+    width: auto;
+    aspect-ratio: auto;
+    /* Reset */
+}
+
+.infoButtonActive {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.infoIcon {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid currentColor;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 800;
+    margin-right: 8px;
+}
+
+.infoLabel {
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+/* COLLAPSIBLE PANEL */
+.infoPanel {
+    width: 100%;
+    max-width: 600px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    overflow: hidden;
+    margin: 0 auto;
+    animation: expandPanel 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.infoContent {
+    padding: 24px;
+}
+
+.infoTitle {
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 16px;
+    font-weight: 700;
+}
+
+.infoList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.infoItemMatch,
+.infoItemMismatch {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.checkIcon {
+    color: #4ade80;
+    /* Green */
+    font-weight: 800;
+}
+
+.warnIcon {
+    color: #facc15;
+    /* Yellow */
+    font-weight: 800;
+}
+
+@keyframes expandPanel {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+        max-height: 0;
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        max-height: 500px;
+    }
+}
+
+/* FLIPPED PRIMARY BUTTON FOR WARNING STATE */
+.primaryWarningButton {
+    height: 60px;
+    font-size: 1.15rem;
+    background: #ffffff;
+    /* White Button */
+    color: #000000;
+    border-radius: 30px;
+    font-weight: 800;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    /* Match stack */
+}
+
+.primaryWarningButton:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 20px rgba(20, 184, 166, 0.4);
+}
+
+
+/* RESTORED IA STYLES */
+
+.primaryButton {
+    height: 60px;
+    font-size: 1.15rem;
+    background: #ffffff;
+    /* White Button */
+    color: #000000;
+    border-radius: 30px;
+    font-weight: 800;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    /* Match stack */
+}
+
+.primaryButton:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+}
+
+.secondaryButton {
+    height: 60px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 30px;
+    color: white;
+    font-weight: 700;
+    font-size: 1.05rem;
+    transition: all 0.2s;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.secondaryButton:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: scale(1.01);
+}
+
+.tertiaryButton {
+    background: none;
+    border: none;
+    color: var(--color-text-tertiary);
+    font-size: 0.9rem;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    cursor: pointer;
+    padding: 8px;
+    transition: color 0.3s ease;
+    font-weight: 500;
+}
+
+
+/* STRICT CAROUSEL STYLES */
+
+.linkInfoRow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 24px;
+    width: 100%;
+}
+
+.linkText {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.95rem;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    cursor: pointer;
+    padding: 4px 8px;
+    transition: color 0.2s;
+}
+
+.linkText:hover {
+    color: white;
+}
+
+/* CORRECTIVE ITERATION STYLES */
+
+.detailTitleOnly {
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 24px;
+    background: linear-gradient(to right, #fff, #aaa);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.02em;
+}
+
+.videoInteractionContainer {
+    margin-top: 32px;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.videoLink {
+    background: none;
+    border: none;
+    color: var(--color-accent);
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+    text-align: left;
+    display: block;
+    transition: opacity 0.2s;
+}
+
+.videoLink:hover {
+    opacity: 0.8;
+}
+
+.videoThumbnailPlaceholder {
+    width: 20px !important;
+    height: 20px !important;
+    min-width: 20px !important;
+    min-height: 20px !important;
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.1);
+    /* Slightly brighter background for tiny icon */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.videoThumbnailPlaceholder:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.playIcon {
+    font-size: 0.6rem;
+    color: var(--color-accent);
+}
+
+/* MODAL STYLES */
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+}
+
+.modalContent {
+    position: relative;
+    width: 90%;
+    max-width: 800px;
+    background: #0a0a0a;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+}
+
+.closeModal {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.2s;
+}
+
+.closeModal:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: rotate(90deg);
+}
+
+.videoPlayerMock {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    background: radial-gradient(circle at center, #111, #000);
+}
+
+.mockPlayLarge {
+    font-size: 4rem;
+    color: var(--color-accent);
+}
+
+.infoIconButton {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.5);
+    background: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: monospace;
+    /* For circular alignment */
+}
+
+.infoIconButton:hover {
+    color: white;
+    border-color: white;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* CAROUSEL TILE VISUAL SIGNALS */
+
+.avatarWrapper :global(.nonRecommended) :global(.card) {
+    border: 1px solid rgba(255, 193, 7, 0.3) !important;
+    box-shadow: 0 0 15px rgba(255, 193, 7, 0.1);
+    background: linear-gradient(135deg, rgba(20, 20, 20, 0.9), rgba(40, 35, 20, 0.9)) !important;
+}
+
+/* LINK + INFO ROW REFINEMENTS */
+
+.linkWithIcon {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.checkIcon {
+    color: #10b981;
+    /* Success Green */
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.warningIcon {
+    color: #f59e0b;
+    /* Amber/Yellow */
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+/* COLLAPSIBLE PANEL REFINEMENTS */
+
+.traitList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.traitItem {
+    position: relative;
+    padding-left: 20px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.8);
+    text-align: left;
+}
+
+.traitItem::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: var(--color-accent);
+    font-weight: bold;
+}
+
+.traitItem.warning::before {
+    color: #f59e0b;
+    /* Amber/Yellow */
+}
+
+.infoContent {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 20px;
+    width: 100%;
+    max-width: 540px;
+    /* Increased from 480px */
+}
+
+.inlineInfoPanel {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 24px;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.clickableLinkText {
+    font-size: 1rem;
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    font-weight: 500;
+}
+
+.clickableLinkText.warning {
+    color: #f59e0b;
+    /* Amber/Yellow */
+}
+
+.clickableLinkText:hover {
+    opacity: 0.8;
+}
+
+.shortSummary {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 32px;
+    font-weight: 400;
+    max-width: 600px;
 }

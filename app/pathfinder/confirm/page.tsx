@@ -76,7 +76,7 @@ export default function ConfirmArchetype() {
                         </button>
                         <div className={styles.videoMock}>
                             <div className={styles.videoInfo}>
-                                <p className={styles.videoTitle}>Simulation: A Day in the Life</p>
+                                <p className={styles.videoTitle}>Simulation: A day in the life</p>
                                 <p className={styles.videoSubtitle}>{selectedCareer}</p>
                             </div>
                             <div className={styles.videoControls}>
@@ -100,7 +100,7 @@ export default function ConfirmArchetype() {
                             career={selectedCareer}
                             subtitle={careerSubtitles[selectedCareer]}
                             isFullBody={true}
-                            isFrameless={true}
+                            isFrameless={false}
                             sex={currentUser?.sex}
                         />
                     </div>
@@ -109,40 +109,52 @@ export default function ConfirmArchetype() {
                 <div className={styles.rightCol}>
                     <h1 className={styles.professionTitle}>{selectedCareer}</h1>
 
-                    {/* Insight Box - Sit BELOW the role title, no overlapping */}
+                    {/* Insight Box - Concrete Reasons, no generic praise */}
                     <div className={`${styles.insightBox} ${isActuallyRecommended ? styles.recommendedInsight : styles.warningInsight}`}>
-                        <p className={styles.insightText}>
-                            {isActuallyRecommended
-                                ? "This role aligns well with how you think and work."
-                                : "This role typically requires qualities that may not be your strongest match."}
-                        </p>
-                        <ul className={styles.qualitiesList}>
-                            {careerExp?.qualities?.map((q, idx) => (
-                                <li key={idx} className={styles.traitItem}>{q}</li>
-                            ))}
-                        </ul>
-                        {!isActuallyRecommended && (
-                            <p className={styles.warningLine}>
-                                Based on your responses, this path may feel challenging or misaligned.
-                            </p>
+                        {isActuallyRecommended ? (
+                            <>
+                                <p className={styles.insightText}>Why this matches your profile:</p>
+                                <ul className={styles.qualitiesList}>
+                                    {careerExp?.why_it_fits?.slice(0, 3).map((q: string, idx: number) => (
+                                        <li key={idx} className={styles.traitItem}>{q}</li>
+                                    ))}
+                                </ul>
+                            </>
+                        ) : (
+                            <>
+                                <p className={styles.insightText}>Points of consideration for this path:</p>
+                                <ul className={styles.qualitiesList}>
+                                    {/* Career Requirements */}
+                                    {careerExp?.why_it_fits?.slice(0, 2).map((q: string, idx: number) => (
+                                        <li key={`req-${idx}`} className={styles.traitItem}>
+                                            Typically requires: {q}
+                                        </li>
+                                    ))}
+                                    {/* Non-alignment points */}
+                                    {careerExp?.why_it_may_not?.slice(0, 2).map((q: string, idx: number) => (
+                                        <li key={`gap-${idx}`} className={styles.traitItem}>
+                                            Potentially challenging: {q}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </>
                         )}
                     </div>
 
-                    {/* Day in the Life Section - Own section, clear header */}
+                    {/* Video Section - Compact label and thumbnail */}
                     <div className={styles.videoSection}>
                         <h3 className={styles.sectionHeader}>
-                            A day in the life
+                            See what a day in the life of a {selectedCareer} is like
                         </h3>
                         <div
                             className={styles.videoPlaceholder}
                             onClick={() => setIsVideoOpen(true)}
                         >
                             <div className={styles.playIcon}>▶</div>
-                            <div className={styles.videoThumbnail} />
                         </div>
                     </div>
 
-                    {/* CTA Stack - Vertically stacked, clear separation */}
+                    {/* CTA Stack - Strict ordering and logic */}
                     <div className={styles.finalCtaStack}>
                         {isActuallyRecommended ? (
                             <>
@@ -159,16 +171,13 @@ export default function ConfirmArchetype() {
                         ) : (
                             <>
                                 <button className="btn-primary" onClick={handleSwitchToRecommended}>
-                                    Switch to recommended path
+                                    Switch to recommended career path
                                 </button>
                                 <button className={styles.btnSecondary} onClick={handleBack}>
                                     Back to career selection
                                 </button>
                                 <button className={styles.btnTertiary} onClick={handleRetakeTest}>
                                     Retake personality test
-                                </button>
-                                <button className={styles.btnTertiary} onClick={handleCommit}>
-                                    Commit to this path
                                 </button>
                             </>
                         )}

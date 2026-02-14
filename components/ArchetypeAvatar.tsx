@@ -6,6 +6,9 @@ import styles from './ArchetypeAvatar.module.css';
 interface ArchetypeAvatarProps {
     career: string;
     subtitle?: string;
+    matchStrength?: string;
+    shortInsight?: string;
+    hideTitle?: boolean;
     isRecommended?: boolean;
     isSelected?: boolean;
     isDimmed?: boolean;
@@ -18,6 +21,9 @@ interface ArchetypeAvatarProps {
 export default function ArchetypeAvatar({
     career,
     subtitle,
+    matchStrength,
+    shortInsight,
+    hideTitle = false,
     isRecommended = false,
     isSelected = false,
     isDimmed = false,
@@ -48,8 +54,20 @@ export default function ArchetypeAvatar({
         isDimmed ? styles.dimmed : '',
         isFullBody ? styles.fullBody : '',
         isFrameless ? styles.frameless : '',
-        isRecommended ? styles.recommended : ''
+        isRecommended ? styles.recommended : styles.nonRecommended // Add class for yellow tint
     ].join(' ');
+
+    const badgeClass = {
+        "Excellent Match": styles.strengthExcellent,
+        "Strong Match": styles.strengthStrong,
+        "Moderate Match": styles.strengthModerate,
+        "Weak Match": styles.strengthWeak,
+        // New Insight Agent Statuses
+        "Recommended": styles.strengthExcellent,
+        "Good Match": styles.strengthStrong,
+        "Explore": styles.strengthModerate,
+        "Not Ideal": styles.strengthWeak
+    }[matchStrength || ""] || styles.strengthModerate;
 
     return (
         <div className={containerClasses} onClick={onClick}>
@@ -69,10 +87,27 @@ export default function ArchetypeAvatar({
                     </div>
                 </div>
 
+
                 {!isFrameless && (
                     <div className={styles.content}>
-                        <h3 className={styles.careerTitle}>{career}</h3>
-                        {subtitle && <p className={styles.careerSubtitle}>{subtitle}</p>}
+                        {!hideTitle && <h3 className={styles.careerTitle}>{career}</h3>}
+
+                        {/* VISUAL SIGNAL: ONLY SHOW TAG IF RECOMMENDED */}
+                        {isRecommended ? (
+                            <div className={`${styles.strengthBadge} ${styles.strengthExcellent}`}>
+                                Recommended
+                            </div>
+                        ) : (
+                            /* Subtitle/Short Insight only for non-recommended (since they have no tag) */
+                            <div className={styles.spacer} style={{ height: '24px' }}></div>
+                        )}
+
+                        {/* SHORT INSIGHT / TAGLINE */}
+                        {shortInsight ? (
+                            <p className={styles.shortInsight}>{shortInsight}</p>
+                        ) : (
+                            subtitle && <p className={styles.careerSubtitle}>{subtitle}</p>
+                        )}
                     </div>
                 )}
             </div>
@@ -83,9 +118,10 @@ export default function ArchetypeAvatar({
                 </div>
             )}
 
-            {!isFrameless && isRecommended && (
+            {/* Remove old RECOMMENDED tag if matchStrength is present, or keep as fallback */}
+            {!isFrameless && isRecommended && !matchStrength && (
                 <div className={styles.recommendedTagOuter}>
-                    <div className={styles.recommendedTag}>RECOMMENDED</div>
+                    <div className={styles.recommendedTag}>Recommended</div>
                 </div>
             )}
         </div>

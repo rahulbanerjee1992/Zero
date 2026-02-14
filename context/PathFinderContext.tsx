@@ -1,9 +1,23 @@
 'use client';
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { analyzeWorkStyle, mapWorkStyleToCareers, QuestionAnswer, WorkStyleTendencies, Question, agent1Questions, hasSufficientSignal } from '@/utils/workStyleReasoning';
-import { generateCareerExplanation, CareerExplanation } from '@/utils/careerExplanation';
+import {
+    calculateAssessment,
+    CareerName,
+    AssessmentResult
+} from '@/utils/careerScoring';
+import {
+    generateCareerExplanation,
+    CareerExplanationResult
+} from '@/utils/careerExplanation';
 
-export type TestStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
+export type TestStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' | 'TIE_BREAKER';
+
+interface QuestionAnswer {
+    questionId: number;
+    selectedOption: number;
+    questionText: string;
+    optionText: string;
+}
 
 interface User {
     email: string;
@@ -12,6 +26,7 @@ interface User {
     testStatus: TestStatus;
     answers: QuestionAnswer[];
     selectedCareer: string | null;
+    assessmentResult: AssessmentResult | null;
 }
 
 interface PathFinderContextType {
@@ -26,17 +41,15 @@ interface PathFinderContextType {
     selectedCareer: string | null;
     setSelectedCareer: (career: string) => void;
     getRecommendedCareer: () => string;
-    getWorkStyleInsights: () => string[];
-    getCareerExplanation: (career: string) => CareerExplanation | null;
-    workStyleAnalysis: WorkStyleTendencies | null;
+    getCareerExplanation: (career: string) => CareerExplanationResult | null;
     resetPathFinder: () => void;
-    agent1Questions: Question[];
-    isSignalSufficient: () => boolean;
+    assessmentResult: AssessmentResult | null;
 }
 
 const PathFinderContext = createContext<PathFinderContextType | undefined>(undefined);
 
-const careers = [
+// STRICT CAREER LIST from Agent Spec
+const careers: CareerName[] = [
     'Software Engineering',
     'Data Science',
     'Business Analyst',
@@ -55,8 +68,8 @@ export function PathFinderProvider({ children }: { children: ReactNode }) {
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [answers, setAnswers] = useState<QuestionAnswer[]>([]);
     const [selectedCareer, setSelectedCareer] = useState<string | null>(null);
-    const [workStyleAnalysis, setWorkStyleAnalysis] = useState<WorkStyleTendencies | null>(null);
     const [testStatus, setTestStatus] = useState<TestStatus>('NOT_STARTED');
+    const [assessmentResult, setAssessmentResult] = useState<AssessmentResult | null>(null);
 
     // Load session on mount
     useEffect(() => {
@@ -67,20 +80,44 @@ export function PathFinderProvider({ children }: { children: ReactNode }) {
             setAnswers(user.answers || []);
             setSelectedCareer(user.selectedCareer || null);
             setTestStatus(user.testStatus || 'NOT_STARTED');
-            if (user.answers && user.answers.length >= 3) {
-                setWorkStyleAnalysis(analyzeWorkStyle(user.answers));
+            if (user.assessmentResult) {
+                setAssessmentResult(user.assessmentResult);
             }
         }
     }, []);
 
-    // Persist current state to account storage whenever relevant state changes
+    // Calculate assessment when answers reach 13 (New Length)
+    useEffect(() => {
+        if (answers.length === 13) {
+            const answerIndices = answers.map(a => a.selectedOption);
+
+            // Calculate Result
+            const result = calculateAssessment(answerIndices);
+            setAssessmentResult(result);
+            setTestStatus('COMPLETED');
+
+            if (currentUser) {
+                const updatedUser = {
+                    ...currentUser,
+                    answers,
+                    testStatus: 'COMPLETED' as TestStatus,
+                    assessmentResult: result
+                };
+                setCurrentUser(updatedUser);
+                localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(updatedUser));
+            }
+        }
+    }, [answers]);
+
+    // Persist current state
     useEffect(() => {
         if (currentUser) {
             const updatedUser = {
                 ...currentUser,
                 answers,
                 selectedCareer,
-                testStatus
+                testStatus,
+                assessmentResult: assessmentResult
             };
 
             // Update session
@@ -97,7 +134,7 @@ export function PathFinderProvider({ children }: { children: ReactNode }) {
                 }
             }
         }
-    }, [answers, selectedCareer, testStatus, currentUser]);
+    }, [answers, selectedCareer, testStatus, currentUser, assessmentResult]);
 
     const signIn = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
         const usersStr = localStorage.getItem(STORAGE_KEY_USERS);
@@ -121,8 +158,8 @@ export function PathFinderProvider({ children }: { children: ReactNode }) {
         setAnswers(user.answers || []);
         setSelectedCareer(user.selectedCareer || null);
         setTestStatus(user.testStatus || 'NOT_STARTED');
-        if (user.answers && user.answers.length >= 3) {
-            setWorkStyleAnalysis(analyzeWorkStyle(user.answers));
+        if (user.assessmentResult) {
+            setAssessmentResult(user.assessmentResult);
         }
         localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(user));
         return { success: true };
@@ -142,7 +179,8 @@ export function PathFinderProvider({ children }: { children: ReactNode }) {
             sex,
             testStatus: 'NOT_STARTED',
             answers: [],
-            selectedCareer: null
+            selectedCareer: null,
+            assessmentResult: null
         };
 
         const updatedUsers = [...users, newUser];
@@ -153,7 +191,7 @@ export function PathFinderProvider({ children }: { children: ReactNode }) {
         setAnswers([]);
         setSelectedCareer(null);
         setTestStatus('NOT_STARTED');
-        setWorkStyleAnalysis(null);
+        setAssessmentResult(null);
         localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(newUser));
 
         return { success: true };
@@ -164,7 +202,7 @@ export function PathFinderProvider({ children }: { children: ReactNode }) {
         setAnswers([]);
         setSelectedCareer(null);
         setTestStatus('NOT_STARTED');
-        setWorkStyleAnalysis(null);
+        setAssessmentResult(null);
         localStorage.removeItem(STORAGE_KEY_SESSION);
     };
 
@@ -188,55 +226,39 @@ export function PathFinderProvider({ children }: { children: ReactNode }) {
         if (testStatus === 'NOT_STARTED') {
             setTestStatus('IN_PROGRESS');
         }
-
-        // Analyze work style after each answer
-        if (updatedAnswers.length >= 3) {
-            const analysis = analyzeWorkStyle(updatedAnswers);
-            setWorkStyleAnalysis(analysis);
-        }
     };
 
     const getRecommendedCareer = (): string => {
-        if (!workStyleAnalysis || answers.length < 5) {
-            const optionCounts = [0, 0, 0, 0];
-            answers.forEach(answer => {
-                if (answer.selectedOption < 4) {
-                    optionCounts[answer.selectedOption]++;
-                }
-            });
-            const maxIndex = optionCounts.indexOf(Math.max(...optionCounts));
-            const careerMap = ['Product Management', 'Data Science', 'Software Engineering', 'Operations'];
-            return careerMap[maxIndex] || 'Software Engineering';
+        if (assessmentResult) {
+            return assessmentResult.recommended_career;
         }
-
-        const careerAlignments = mapWorkStyleToCareers(workStyleAnalysis);
-        return careerAlignments[0]?.career || 'Software Engineering';
+        return 'Software Engineering';
     };
 
-    const getWorkStyleInsights = (): string[] => {
-        if (!workStyleAnalysis) {
-            return [
-                'Complete more questions to generate personalized insights',
-                'Your work-style profile is being analyzed',
-                'Answer patterns will reveal your natural approach to work'
-            ];
-        }
-        return workStyleAnalysis.insights;
-    };
-
-    const getCareerExplanation = (career: string): CareerExplanation | null => {
-        if (!workStyleAnalysis) {
+    const getCareerExplanation = (career: string): CareerExplanationResult | null => {
+        if (!assessmentResult) {
             return null;
         }
-        const recommended = getRecommendedCareer();
-        return generateCareerExplanation(career, recommended, workStyleAnalysis);
+
+        return generateCareerExplanation(career as CareerName, assessmentResult);
     };
 
     const resetPathFinder = () => {
         setAnswers([]);
         setSelectedCareer(null);
-        setWorkStyleAnalysis(null);
         setTestStatus('NOT_STARTED');
+        setAssessmentResult(null);
+        if (currentUser) {
+            const updatedUser = {
+                ...currentUser,
+                answers: [],
+                selectedCareer: null,
+                testStatus: 'NOT_STARTED' as TestStatus,
+                assessmentResult: null
+            };
+            setCurrentUser(updatedUser);
+            localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(updatedUser));
+        }
     };
 
     return (
@@ -253,12 +275,9 @@ export function PathFinderProvider({ children }: { children: ReactNode }) {
                 selectedCareer,
                 setSelectedCareer,
                 getRecommendedCareer,
-                getWorkStyleInsights,
                 getCareerExplanation,
-                workStyleAnalysis,
                 resetPathFinder,
-                agent1Questions,
-                isSignalSufficient: () => hasSufficientSignal(answers)
+                assessmentResult
             }}
         >
             {children}
