@@ -189,11 +189,12 @@ export interface AssessmentResult {
     confidence: "high" | "medium";
     scores: Record<CareerName, number>;
     signal_breakdown: SignalBreakdown;
-    // Legacy fields for compatibility (mapped from new logic)
+    // Legacy fields for compatibility
     positive_traits: string[];
     risk_flags: string[];
     runner_up: CareerName;
     breakdown?: any;
+    is_ambiguous: boolean;
     tie_breaker_used: boolean;
 }
 
@@ -209,7 +210,7 @@ const initialScores: Record<CareerName, number> = {
     "Product / Project Management": 0
 };
 
-export function calculateAssessment(answers: number[], tieBreakerAnswer?: { career: CareerName; selected: number }): AssessmentResult {
+export function calculateAssessment(answers: number[]): AssessmentResult {
     // Deep copy initial scores
     const currentScores: Record<CareerName, number> = { ...initialScores };
     const positiveTraits: string[] = [];
@@ -221,155 +222,103 @@ export function calculateAssessment(answers: number[], tieBreakerAnswer?: { care
     let staminaSignal = "Moderate";
     let decisionSignal = "Mixed";
 
-    // --- PHASE 1: COGNITIVE SCORING (Max ~50 pts) ---
-
-    // Q1: Instructions
-    if (answers[0] === 0) { // Systematic
+    // --- PHASE 1: COGNITIVE SCORING ---
+    if (answers[0] === 0) {
         ["Software Engineering", "Security Engineering / Cyber Security", "Data Science", "AI / Machine Learning"].forEach(c => currentScores[c as CareerName] += 10);
         positiveTraits.push("Systematic Thinking");
         cognitiveSignal = "Systematic & Structured";
-    } else if (answers[0] === 1) { // Visual/Example
+    } else if (answers[0] === 1) {
         ["UX / UI Design", "Marketing", "Product / Project Management"].forEach(c => currentScores[c as CareerName] += 10);
         positiveTraits.push("Visual Learning");
         cognitiveSignal = "Visual & Applied";
-    } else if (answers[0] === 2) { // Intuitive
+    } else if (answers[0] === 2) {
         ["Sales", "Product / Project Management", "Marketing", "Business Analyst"].forEach(c => currentScores[c as CareerName] += 10);
         positiveTraits.push("Intuitive Solver");
         cognitiveSignal = "Intuitive & Organic";
     }
 
-    // Q2: Data Reaction
-    if (answers[1] === 0) { // Curiosity -> Data/AI
-        ["Data Science", "AI / Machine Learning", "Business Analyst"].forEach(c => currentScores[c as CareerName] += 10);
-        positiveTraits.push("Data Curiosity");
-    } else if (answers[1] === 1) { // Overwhelm -> Creative/People
-        ["UX / UI Design", "Sales", "Marketing"].forEach(c => currentScores[c as CareerName] += 8);
-    } else if (answers[1] === 2) { // Utility -> PM/BA
-        ["Product / Project Management", "Business Analyst", "Marketing"].forEach(c => currentScores[c as CareerName] += 8);
-    }
+    if (answers[1] === 0) ["Data Science", "AI / Machine Learning", "Business Analyst"].forEach(c => currentScores[c as CareerName] += 10);
+    else if (answers[1] === 1) ["UX / UI Design", "Sales", "Marketing"].forEach(c => currentScores[c as CareerName] += 8);
+    else if (answers[1] === 2) ["Product / Project Management", "Business Analyst", "Marketing"].forEach(c => currentScores[c as CareerName] += 8);
 
-    // Q3: Group Role
-    if (answers[2] === 0) { // Structuring -> PM/BA
+    if (answers[2] === 0) {
         ["Product / Project Management", "Business Analyst"].forEach(c => currentScores[c as CareerName] += 10);
         decisionSignal = "Organizer / Director";
-    } else if (answers[2] === 1) { // Execution -> SWE/Data
+    } else if (answers[2] === 1) {
         ["Software Engineering", "Data Science", "AI / Machine Learning"].forEach(c => currentScores[c as CareerName] += 10);
         decisionSignal = "Executor / Builder";
-    } else if (answers[2] === 2) { // Presenting -> Sales/Marketing
+    } else if (answers[2] === 2) {
         ["Sales", "Marketing"].forEach(c => currentScores[c as CareerName] += 10);
         decisionSignal = "Presenter / Persuader";
-    } else if (answers[2] === 3) { // Designing -> UX
-        ["UX / UI Design", "Marketing"].forEach(c => currentScores[c as CareerName] += 12); // Specialist boost
-    }
+    } else if (answers[2] === 3) ["UX / UI Design", "Marketing"].forEach(c => currentScores[c as CareerName] += 12);
 
-    // Q4: Problem Solving
-    if (answers[3] === 0) { // Logical Path
-        ["Software Engineering", "Security Engineering / Cyber Security"].forEach(c => currentScores[c as CareerName] += 8);
-    } else if (answers[3] === 1) { // Open-Ended
-        ["UX / UI Design", "Marketing", "Product / Project Management"].forEach(c => currentScores[c as CareerName] += 8);
-    } else if (answers[3] === 2) { // Fast Reaction
-        ["Sales", "Product / Project Management", "Security Engineering / Cyber Security"].forEach(c => currentScores[c as CareerName] += 8);
-    } else if (answers[3] === 3) { // Strategic
-        ["Product / Project Management", "Business Analyst", "Data Science"].forEach(c => currentScores[c as CareerName] += 8);
-    }
+    if (answers[3] === 0) ["Software Engineering", "Security Engineering / Cyber Security"].forEach(c => currentScores[c as CareerName] += 8);
+    else if (answers[3] === 1) ["UX / UI Design", "Marketing", "Product / Project Management"].forEach(c => currentScores[c as CareerName] += 8);
+    else if (answers[3] === 2) ["Sales", "Product / Project Management", "Security Engineering / Cyber Security"].forEach(c => currentScores[c as CareerName] += 8);
+    else if (answers[3] === 3) ["Product / Project Management", "Business Analyst", "Data Science"].forEach(c => currentScores[c as CareerName] += 8);
 
-    // Q5: Repetitive Tasks
     if (answers[4] === 0) {
         ["Data Science", "Security Engineering / Cyber Security", "Software Engineering"].forEach(c => currentScores[c as CareerName] += 5);
         workPrefSignal = "Detail-Oriented";
-    } else if (answers[4] === 2) { // Automate
+    } else if (answers[4] === 2) {
         ["Software Engineering", "AI / Machine Learning"].forEach(c => currentScores[c as CareerName] += 8);
         workPrefSignal = "Efficiency-Focused";
     }
 
-    // Q6: Day Choice
     if (answers[5] === 0) ["Software Engineering", "Data Science", "AI / Machine Learning"].forEach(c => currentScores[c as CareerName] += 10);
     if (answers[5] === 1) ["Marketing", "Sales", "Product / Project Management"].forEach(c => currentScores[c as CareerName] += 10);
     if (answers[5] === 2) ["UX / UI Design", "Marketing"].forEach(c => currentScores[c as CareerName] += 10);
     if (answers[5] === 3) ["Product / Project Management", "Sales", "Business Analyst"].forEach(c => currentScores[c as CareerName] += 10);
 
-
-    // --- PHASE 2: REALITY CHECK SCORING (Penalties / Boosts) ---
+    // --- PHASE 2: REALITY CHECK ---
     const techCareers = ["Software Engineering", "Data Science", "AI / Machine Learning", "Security Engineering / Cyber Security"];
     const salesCareers = ["Sales", "Marketing"];
     const productCareers = ["UX / UI Design", "Product / Project Management", "Business Analyst"];
 
-    // Q7: Tech Isolation
     if (answers[6] === 0) techCareers.forEach(c => currentScores[c as CareerName] += 10);
     if (answers[6] === 2) techCareers.forEach(c => currentScores[c as CareerName] -= 15);
-    if (answers[6] === 3) {
-        techCareers.forEach(c => currentScores[c as CareerName] -= 30);
-        riskFlags.push("Aversion to Isolation");
-    }
+    if (answers[6] === 3) { techCareers.forEach(c => currentScores[c as CareerName] -= 30); riskFlags.push("Aversion to Isolation"); }
 
-    // Q8: Sales Pressure
     if (answers[7] === 0) salesCareers.forEach(c => currentScores[c as CareerName] += 10);
     if (answers[7] === 2) salesCareers.forEach(c => currentScores[c as CareerName] -= 10);
-    if (answers[7] === 3) {
-        salesCareers.forEach(c => currentScores[c as CareerName] -= 30);
-        riskFlags.push("Aversion to Pressure");
-    }
+    if (answers[7] === 3) { salesCareers.forEach(c => currentScores[c as CareerName] -= 30); riskFlags.push("Aversion to Pressure"); }
 
-    // Q9: Criticism
     if (answers[8] === 2) productCareers.forEach(c => currentScores[c as CareerName] -= 10);
-    if (answers[8] === 3) {
-        productCareers.forEach(c => currentScores[c as CareerName] -= 25);
-        riskFlags.push("Sensitivity to Feedback");
-    }
+    if (answers[8] === 3) { productCareers.forEach(c => currentScores[c as CareerName] -= 25); riskFlags.push("Sensitivity to Feedback"); }
 
-    // Q10: Security
     if (answers[9] === 0) currentScores["Security Engineering / Cyber Security"] += 15;
     if (answers[9] === 3) currentScores["Security Engineering / Cyber Security"] -= 25;
 
-
-    // --- PHASE 3: GRIT SCORING (Global + Specific) ---
+    // --- PHASE 3: GRIT ---
     let gritMultiplier = 1.0;
+    if (answers[10] === 0) gritMultiplier += 0.1;
+    if (answers[10] === 3) gritMultiplier -= 0.1;
+    if (answers[11] === 0) gritMultiplier += 0.1;
+    if (answers[11] === 3) gritMultiplier -= 0.15;
+    if (answers[12] === 0) techCareers.forEach(c => currentScores[c as CareerName] += 10);
+    if (answers[12] === 3) techCareers.forEach(c => currentScores[c as CareerName] -= 20);
 
-    // Q11: Learning History
-    if (answers[10] === 0) { gritMultiplier += 0.1; staminaSignal = "High Stamina"; }
-    if (answers[10] === 3) { gritMultiplier -= 0.1; staminaSignal = "Low Stamina"; }
-
-    // Q12: Hitting Wall
-    if (answers[11] === 0) gritMultiplier += 0.1; // Resourceful
-    if (answers[11] === 3) gritMultiplier -= 0.15; // Quit
-
-    // Q13: Focus Time
-    if (answers[12] === 0) { // 6+ hours
-        techCareers.forEach(c => currentScores[c as CareerName] += 10);
-        staminaSignal = "Deep Focus Expert";
-    }
-    if (answers[12] === 3) { // <30 mins
-        techCareers.forEach(c => currentScores[c as CareerName] -= 20); // Massive penalty for tech
-        staminaSignal = "Short Focus Bursts";
-    }
-
-
-    // --- FINAL NORMALIZATION (0-100) ---
-    let maxScore = 0;
+    // --- NORMALIZATION ---
+    let maxRaw = 0;
     Object.keys(currentScores).forEach(key => {
         const c = key as CareerName;
-        currentScores[c] = Math.max(0, Math.round(currentScores[c] * gritMultiplier));
-        if (currentScores[c] > maxScore) maxScore = currentScores[c];
+        currentScores[c] = Math.max(0, currentScores[c] * gritMultiplier);
+        if (currentScores[c] > maxRaw) maxRaw = currentScores[c];
     });
 
-    // Ensure at least one score is >= 70 (as requested)
-    if (maxScore < 70 && maxScore > 0) {
-        const scaleFactor = 75 / maxScore; // Boost winner to 75
+    if (maxRaw > 0) {
         Object.keys(currentScores).forEach(key => {
             const c = key as CareerName;
-            currentScores[c] = Math.round(currentScores[c] * scaleFactor);
+            currentScores[c] = Math.round((currentScores[c] / maxRaw) * 100);
         });
     }
 
-    // Sort to find winner
     const sortedCareers = Object.entries(currentScores)
         .sort(([, a], [, b]) => b - a)
         .map(([name, score]) => ({ name: name as CareerName, score }));
 
     const winner = sortedCareers[0];
-    const runnerApps = sortedCareers.length > 1 ? sortedCareers[1].name : "Sales";
-
-    // Confidence
+    const isAmbiguous = sortedCareers.length > 1 && (winner.score - sortedCareers[1].score <= 7);
     const confidence = (sortedCareers.length > 1 && (winner.score - sortedCareers[1].score > 10)) ? "high" : "medium";
 
     return {
@@ -382,14 +331,14 @@ export function calculateAssessment(answers: number[], tieBreakerAnswer?: { care
             learning_stamina: staminaSignal,
             decision_style: decisionSignal
         },
-        // Mapped legacy fields
         positive_traits: positiveTraits,
         risk_flags: riskFlags,
-        runner_up: runnerApps,
-        tie_breaker_used: !!tieBreakerAnswer
+        runner_up: sortedCareers.length > 1 ? sortedCareers[1].name : "Sales",
+        is_ambiguous: isAmbiguous,
+        tie_breaker_used: false
     };
 }
 
-export function needsTieBreaker(scores: any): { needed: boolean; career1?: CareerName; career2?: CareerName } {
+export function needsTieBreaker(result: AssessmentResult): { needed: boolean; career1?: CareerName; career2?: CareerName } {
     return { needed: false };
 }

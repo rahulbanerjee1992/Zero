@@ -3,14 +3,16 @@ import React, { createContext, useContext, useState, ReactNode, useEffect } from
 import {
     calculateAssessment,
     CareerName,
-    AssessmentResult
+    AssessmentResult,
+    assessmentQuestions,
+    Question
 } from '@/utils/careerScoring';
 import {
-    generateCareerExplanation,
-    CareerExplanationResult
+    CareerExplanationResult,
+    generateCareerExplanation
 } from '@/utils/careerExplanation';
 
-export type TestStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' | 'TIE_BREAKER';
+export type TestStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
 
 interface QuestionAnswer {
     questionId: number;
@@ -38,12 +40,14 @@ interface PathFinderContextType {
     setTestStatus: (status: TestStatus) => void;
     answers: QuestionAnswer[];
     addAnswer: (questionId: number, selectedOption: number, questionText: string, optionText: string) => void;
-    selectedCareer: string | null;
     setSelectedCareer: (career: string) => void;
     getRecommendedCareer: () => string;
     getCareerExplanation: (career: string) => CareerExplanationResult | null;
     resetPathFinder: () => void;
     assessmentResult: AssessmentResult | null;
+    agent1Questions: Question[];
+    isSignalSufficient: () => boolean;
+    hasCompletedPathFinder: boolean;
 }
 
 const PathFinderContext = createContext<PathFinderContextType | undefined>(undefined);
@@ -86,28 +90,47 @@ export function PathFinderProvider({ children }: { children: ReactNode }) {
         }
     }, []);
 
-    // Calculate assessment when answers reach 13 (New Length)
+    // Safety check: Calculate assessment if answers are complete but status is stuck
     useEffect(() => {
-        if (answers.length === 13) {
-            const answerIndices = answers.map(a => a.selectedOption);
+        if (answers.length === 13 && (testStatus === 'IN_PROGRESS' || testStatus === 'NOT_STARTED') && currentUser) {
+            handleAssessmentCompletion(answers);
+        }
+    }, [answers, testStatus, currentUser]);
 
-            // Calculate Result
+    const handleAssessmentCompletion = (currentAnswers: QuestionAnswer[]) => {
+        console.log("[DEBUG] Entered handleAssessmentCompletion", {
+            answersCount: currentAnswers.length,
+            hasUser: !!currentUser
+        });
+
+        if (currentAnswers.length < 13 || !currentUser) {
+            console.log("[DEBUG] Early exit: condition not met.");
+            return;
+        }
+
+        const answerIndices = currentAnswers.map(a => a.selectedOption);
+        console.log("[DEBUG] Answer Indices:", answerIndices);
+
+        try {
             const result = calculateAssessment(answerIndices);
+            console.log("[DEBUG] Result generated:", result.recommended_career);
             setAssessmentResult(result);
             setTestStatus('COMPLETED');
 
-            if (currentUser) {
-                const updatedUser = {
-                    ...currentUser,
-                    answers,
-                    testStatus: 'COMPLETED' as TestStatus,
-                    assessmentResult: result
-                };
-                setCurrentUser(updatedUser);
-                localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(updatedUser));
-            }
+            const updatedUser: User = {
+                ...currentUser,
+                answers: currentAnswers,
+                testStatus: 'COMPLETED',
+                assessmentResult: result
+            };
+
+            setCurrentUser(updatedUser);
+            localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(updatedUser));
+            console.log("[DEBUG] State and LocalStorage updated.");
+        } catch (err) {
+            console.error("[DEBUG] Error in completion logic:", err);
         }
-    }, [answers]);
+    };
 
     // Persist current state
     useEffect(() => {
@@ -226,6 +249,11 @@ export function PathFinderProvider({ children }: { children: ReactNode }) {
         if (testStatus === 'NOT_STARTED') {
             setTestStatus('IN_PROGRESS');
         }
+
+        // Trigger completion if this was the last question
+        if (updatedAnswers.length === 13) {
+            handleAssessmentCompletion(updatedAnswers);
+        }
     };
 
     const getRecommendedCareer = (): string => {
@@ -277,7 +305,10 @@ export function PathFinderProvider({ children }: { children: ReactNode }) {
                 getRecommendedCareer,
                 getCareerExplanation,
                 resetPathFinder,
-                assessmentResult
+                assessmentResult,
+                agent1Questions: assessmentQuestions,
+                isSignalSufficient: () => answers.length >= 13,
+                hasCompletedPathFinder: testStatus === 'COMPLETED'
             }}
         >
             {children}

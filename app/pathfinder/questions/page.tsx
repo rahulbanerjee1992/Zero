@@ -8,7 +8,12 @@ import styles from './page.module.css';
 
 export default function Questions() {
     const router = useRouter();
-    const { addAnswer, answers, setTestStatus } = usePathFinder();
+    const {
+        addAnswer,
+        answers,
+        testStatus
+    } = usePathFinder();
+
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [selectedOption, setSelectedOption] = useState<number | null>(null);
 
@@ -17,40 +22,35 @@ export default function Questions() {
         if (answers && answers.length > 0) {
             setCurrentQuestion(answers.length);
         }
-    }, []);
 
-    useEffect(() => {
-        if (currentQuestion >= assessmentQuestions.length) {
-            setTestStatus('COMPLETED');
+        // Hard redirect if we are beyond questions and completed
+        if (answers.length >= 13 && testStatus === 'COMPLETED') {
             router.push('/pathfinder/recommendation');
         }
-    }, [currentQuestion, router, setTestStatus]);
+    }, [answers, testStatus, router]);
 
-    const handleOptionSelect = (optionIndex: number) => {
-        setSelectedOption(optionIndex);
-        const currentQ = assessmentQuestions[currentQuestion];
-        addAnswer(
-            currentQ.id,
-            optionIndex,
-            currentQ.text,
-            currentQ.options[optionIndex]
-        );
+    // Handle Redirect after completion
+    useEffect(() => {
+        if (testStatus === 'COMPLETED') {
+            router.push('/pathfinder/recommendation');
+        }
+    }, [testStatus, router]);
 
-        // Auto-advance after a brief delay
-        setTimeout(() => {
-            setSelectedOption(null);
+    const handleAnswerSelect = (optionIndex: number) => {
+        const question = assessmentQuestions[currentQuestion];
+        addAnswer(question.id, optionIndex, question.text, question.options[optionIndex]);
+
+        if (currentQuestion < assessmentQuestions.length - 1) {
             setCurrentQuestion(prev => prev + 1);
-        }, 400);
+        }
     };
 
     if (currentQuestion >= assessmentQuestions.length) {
-        return null;
+        return null; // Transitioning directly via useEffect
     }
 
     const question = assessmentQuestions[currentQuestion];
     const progress = ((currentQuestion + 1) / assessmentQuestions.length) * 100;
-
-    // Map option letters
     const optionLetters = ['A', 'B', 'C', 'D'];
 
     return (
@@ -71,7 +71,7 @@ export default function Questions() {
                         <button
                             key={index}
                             className={`${styles.optionCard} ${selectedOption === index ? styles.selected : ''}`}
-                            onClick={() => handleOptionSelect(index)}
+                            onClick={() => handleAnswerSelect(index)}
                         >
                             <span className={styles.optionLetter}>{optionLetters[index]}</span>
                             <span className={styles.optionText}>{option}</span>

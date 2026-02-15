@@ -105,7 +105,7 @@ export default function Recommendation() {
     };
 
     const handleCommit = () => {
-        router.push('/signup?career=' + encodeURIComponent(selectedCareer || ''));
+        router.push('/pathfinder/complete');
     };
 
     const handleBackToSelection = () => {
