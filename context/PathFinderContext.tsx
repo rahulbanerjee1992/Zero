@@ -40,6 +40,7 @@ interface PathFinderContextType {
     setTestStatus: (status: TestStatus) => void;
     answers: QuestionAnswer[];
     addAnswer: (questionId: number, selectedOption: number, questionText: string, optionText: string) => void;
+    selectedCareer: string | null;
     setSelectedCareer: (career: string) => void;
     getRecommendedCareer: () => string;
     getCareerExplanation: (career: string) => CareerExplanationResult | null;

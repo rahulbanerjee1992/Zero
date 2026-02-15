@@ -7,17 +7,6 @@ import ArchetypeAvatar from '@/components/ArchetypeAvatar';
 import { CareerName } from '@/utils/careerScoring';
 import styles from './page.module.css';
 
-const careerSubtitles: Record<string, string> = {
-    'Software Engineering': 'Systems Architecture',
-    'Data Science': 'Applied Analytics',
-    'Business Analyst': 'Enterprise Insights',
-    'Marketing': 'Brand Growth',
-    'Sales': 'Client Advocacy',
-    'Security Engineering / Cyber Security': 'Digital Defense',
-    'AI / Machine Learning': 'Neural Systems',
-    'UX / UI Design': 'Human Experience',
-    'Product / Project Management': 'Strategic Delivery'
-};
 
 export default function Recommendation() {
     const router = useRouter();
@@ -276,7 +265,7 @@ export default function Recommendation() {
                         <div className={styles.detailLeft}>
                             <ArchetypeAvatar
                                 career={selectedCareer}
-                                subtitle={careerSubtitles[selectedCareer]}
+                                subtitle={explanation.shortReason}
                                 isFullBody={true}
                                 isFrameless={true}
                                 hideTitle={true}

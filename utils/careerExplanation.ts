@@ -79,7 +79,7 @@ const CAREER_NARRATIVES: Record<CareerName, {
     surprises: string;
 }> = {
     "Software Engineering": {
-        shortReason: "Systematic problem solving",
+        shortReason: "Systems Architecture",
         insightStrip: "building things that run on their own.",
         dailyReality: "You'll spend most of your day writing code, debugging complex errors, and designing systems that need to handle millions of requests without breaking.",
         fits: [
@@ -95,7 +95,7 @@ const CAREER_NARRATIVES: Record<CareerName, {
         surprises: "It's more about reading other people's code than writing new code from scratch."
     },
     "Data Science": {
-        shortReason: "Analytical pattern finding",
+        shortReason: "Applied Analytics",
         insightStrip: "discovering hidden truths in messy numbers.",
         dailyReality: "You'll be cleaning messy data, building statistical models, and translating complex numbers into clear stories for business leaders.",
         fits: [
@@ -111,7 +111,7 @@ const CAREER_NARRATIVES: Record<CareerName, {
         surprises: "80% of the work is just finding and fixing the data, not running cool AI models."
     },
     "Business Analyst": {
-        shortReason: "Structured communication",
+        shortReason: "Enterprise Insights",
         insightStrip: "translating messy needs into clear plans.",
         dailyReality: "You'll interview stakeholders to find out what they really need, then write clear documents that help developers build it right.",
         fits: [
@@ -127,7 +127,7 @@ const CAREER_NARRATIVES: Record<CareerName, {
         surprises: "You spend more time listening and documenting than actually telling people what to do."
     },
     "Marketing": {
-        shortReason: "Creative strategy",
+        shortReason: "Brand Growth",
         insightStrip: "analyzing audience behavior and creating campaigns.",
         dailyReality: "You'll analyze audience behavior, create campaigns that grab attention, and measure what actually drives sales and engagement.",
         fits: [
@@ -143,7 +143,7 @@ const CAREER_NARRATIVES: Record<CareerName, {
         surprises: "It's less about 'being creative' and more about testing what works and repeating it."
     },
     "Sales": {
-        shortReason: "Persuasive resilience",
+        shortReason: "Client Advocacy",
         insightStrip: "winning people over and closing deals.",
         dailyReality: "You'll reach out to potential clients, understand their pain points, and convince them that your solution is worth their investment.",
         fits: [
@@ -159,7 +159,7 @@ const CAREER_NARRATIVES: Record<CareerName, {
         surprises: "The best salespeople listen more than they talk—it's about helpfulness, not aggressive pitching."
     },
     "Security Engineering / Cyber Security": {
-        shortReason: "Vigilant protection",
+        shortReason: "Digital Defense",
         insightStrip: "outsmarting threats before they happen.",
         dailyReality: "You'll monitor systems for attacks, test defenses by trying to break them, and respond instantly when a breach occurs.",
         fits: [
@@ -175,7 +175,7 @@ const CAREER_NARRATIVES: Record<CareerName, {
         surprises: "You're often the 'fun police' telling other developers they can't launch a feature yet because it's unsafe."
     },
     "AI / Machine Learning": {
-        shortReason: "Abstract logic",
+        shortReason: "Neural Systems",
         insightStrip: "teaching computers to learn on their own.",
         dailyReality: "You'll design algorithms that improve over time, feed them massive datasets, and tune them to make accurate predictions.",
         fits: [
@@ -191,7 +191,7 @@ const CAREER_NARRATIVES: Record<CareerName, {
         surprises: "Models are often a 'black box'—sometimes even you won't know exactly why the AI made a specific decision."
     },
     "UX / UI Design": {
-        shortReason: "Visual empathy",
+        shortReason: "Human Experience",
         insightStrip: "making complex tools feel intuitive.",
         dailyReality: "You'll sketch interfaces, test them with real users to see where they get stuck, and refine pixel-perfect designs.",
         fits: [
@@ -207,7 +207,7 @@ const CAREER_NARRATIVES: Record<CareerName, {
         surprises: "It's not just making it pretty; it's about making it work for the user's brain."
     },
     "Product / Project Management": {
-        shortReason: "Strategic leadership",
+        shortReason: "Strategic Delivery",
         insightStrip: "rallying teams to ship great products.",
         dailyReality: "You'll prioritize what features to build next, unblock your team when they get stuck, and keep stakeholders happy.",
         fits: [
